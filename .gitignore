@@ -1,0 +1,13 @@
+# Segredos / ambiente (o .env.example versionado virá na spec 007)
+.env
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ferramentas locais
+.rtk/
+
+# Pasta monitorada: recebe arquivos em runtime/demo, não versiona conteúdo
+data/inbox/*
+!data/inbox/.gitkeep
