@@ -36,7 +36,49 @@ Documentos de referência, em ordem de desempate se houver conflito:
 
 ---
 
-## 2. O fluxo de trabalho (gitflow)
+## 2. Sequência das specs — o que é paralelo e o que é dependente
+
+```
+001-fontes-dados-simuladas ─┐
+                             ├─► 003-pipeline-etl ─► 004-motor-alertas ─► 005-painel-frota-alertas ─┐
+002-modelo-dados-banco ─────┘             │                                                          ├─► 007-demo-empacotamento-conformidade
+                                           └───────────────────────────► 006-painel-custos ──────────┘
+```
+
+**Independentes (comecem já, em paralelo):**
+- `001-fontes-dados-simuladas` — não depende de nenhuma outra spec.
+- `002-modelo-dados-banco` — não depende de nenhuma outra spec.
+
+Essas duas são o ponto de partida do projeto: dados (001) e schema/backend (002) são
+frentes de pessoas diferentes que não se bloqueiam uma à outra.
+
+**Dependentes:**
+
+| Spec | Depende de | Por quê |
+|---|---|---|
+| `003-pipeline-etl` | 001 + 002 | precisa dos dados simulados (para extrair) **e** do schema (para carregar) |
+| `004-motor-alertas` | 002 + 003 | lê `LIMIAR_CONFIG`/`ALERTA` (002) e os dados consolidados que o pipeline carrega (003) |
+| `005-painel-frota-alertas` | 002 + 003 + 004 | exibe dados consolidados (003) e alertas (004) |
+| `006-painel-custos` | 002 + 003 | só precisa dos gastos consolidados — **não depende de 004** |
+| `007-demo-empacotamento-conformidade` | todas (001–006) | empacota e ensaia o sistema completo |
+
+**Caminho crítico da demo** (bloqueia o disparo do alerta ao vivo — tasks 🔴 do kanban):
+
+```
+001 + 002 ──► 003 ──► 004 ──► 005 ──► 007
+```
+
+**Ramo paralelo ao caminho crítico:** `006` só depende de `003`, não de `004`/`005` — quem
+pegar o painel de custos pode trabalhar em paralelo com quem estiver no motor de alertas ou
+no painel de frota, assim que o pipeline (003) estiver de pé.
+
+**Sugestão de alocação com 4+ pessoas:** comecem `001` e `002` juntas no dia 1; assim que
+`003` estiver pronto, uma pessoa ataca `004` (motor) enquanto outra já ataca `006` (custos)
+em paralelo — só `005` precisa esperar `004` terminar.
+
+---
+
+## 3. O fluxo de trabalho (gitflow)
 
 - `main` e `dev` são branches **permanentes** e **protegidas**: ninguém dá push direto nelas,
   force-push é bloqueado, e todo merge exige um Pull Request com **pelo menos 1 aprovação**.
@@ -59,13 +101,13 @@ git push -u origin feature/00X-nome-da-spec
 
 ---
 
-## 3. Como pegar uma spec
+## 4. Como pegar uma spec
 
 1. Abra `specs/README.md` e escolha uma spec ainda não assumida (veja a tabela de
    dependências — algumas só podem começar depois de outras estarem prontas).
 2. Leia o `spec.md` da pasta escolhida: ele tem as histórias de usuário, requisitos
    testáveis e critérios de sucesso. É tudo que você precisa para começar a implementar.
-3. Crie sua feature branch a partir de `dev` (seção 2).
+3. Crie sua feature branch a partir de `dev` (seção 3).
 
 A partir daqui, escolha o caminho que preferir — **os dois são igualmente válidos** e levam
 ao mesmo lugar (código + PR para `dev`):
@@ -96,7 +138,7 @@ Nenhum dos dois caminhos é obrigatório — misturar também é normal (ex.: um
 
 ---
 
-## 4. Regras que não podem ser quebradas
+## 5. Regras que não podem ser quebradas
 
 Resumo da constitution (`.specify/memory/constitution.md`) — leia o documento completo antes
 de tomar decisões de modelagem ou de escopo:
@@ -117,7 +159,7 @@ de tomar decisões de modelagem ou de escopo:
 
 ---
 
-## 5. Convenções de código
+## 6. Convenções de código
 
 - Idioma: português no código de domínio (tabelas, campos, variáveis de negócio) e na
   documentação.
@@ -128,7 +170,7 @@ de tomar decisões de modelagem ou de escopo:
 
 ---
 
-## 6. Dúvidas
+## 7. Dúvidas
 
 Se o `spec.md` da sua frente não responder, a ordem de consulta é: arquitetura técnica →
 kanban original → constitution → perguntar no time. Se encontrar uma decisão de arquitetura
