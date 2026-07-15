@@ -90,7 +90,7 @@ Como apresentador da demo, preciso que ETL e motor rodem sozinhos em ciclo confi
 ### Edge Cases
 
 - Par (tipo_veiculo, tipo_manutencao) sem limiar em LIMIAR_CONFIG: definição explícita (tratar como não-aplicável e registrar, ou `dados_insuficientes`) — nunca erro que derrube o ciclo.
-- `km_atual` do veículo menor que `km_no_momento` da última manutenção (odômetro inconsistente): km não confiável → `dados_insuficientes`.
+- `km_atual` do veículo menor que `km_no_momento` da última manutenção (odômetro inconsistente): km não confiável → `dados_insuficientes`. A série `km_hodometro` do ABASTECIMENTO consolidado (ADR-002) pode ser usada como evidência adicional de inconsistência (leituras decrescentes).
 - Limiar alterado com alerta ativo existente: alerta ativo não é retroativamente apagado; a próxima verificação usa o novo limiar.
 - Duas condições verdadeiras ao mesmo tempo (km e tempo): dois alertas distintos, um por gatilho.
 - Ciclo do motor coincidindo com ETL em andamento: verificação lê estado consistente (roda após o ETL do ciclo, conforme sequência da arquitetura seção 8).
@@ -130,5 +130,5 @@ Como apresentador da demo, preciso que ETL e motor rodem sozinhos em ciclo confi
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 5, 7-D4 e 8)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 5, 7-D4 e 8)
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 2 t1–t4 e t6)

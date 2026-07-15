@@ -13,8 +13,11 @@ manutenção XLSX multi-abas, licenciamento SQLite) com inconsistências proposi
 pseudonimização LGPD desde a origem (`COND-NNN`), cenário determinístico da demo (2 veículos a
 ~600 km e ~20 dias dos limiares de `troca_oleo`/`leve` = 5000 km / 180 dias) e um CSV-gatilho
 pronto para depositar ao vivo. Stack: Python 3.12 + pandas + openpyxl + FastAPI, conforme
-decisões D1 e D5 da arquitetura v1.0. É o ponto de partida do projeto (nenhuma dependência) e
-destrava todas as demais frentes (pipeline, motor, dashboard).
+decisões D1 e D5 da arquitetura v2.0. Revisão de realismo de 2026-07-14 (ADRs 001–003):
+placas nos dois formatos vigentes (~70% Mercosul), km do hodômetro persistido no consolidado,
+multas com valores tabelados do CTB, licenciamento pelo final da placa, modelo de consumo
+coerente e um veículo deliberadamente caro para a spec 006. É o ponto de partida do projeto
+(nenhuma dependência) e destrava todas as demais frentes (pipeline, motor, dashboard).
 
 ## Technical Context
 
@@ -55,8 +58,9 @@ destrava todas as demais frentes (pipeline, motor, dashboard).
 - Determinismo absoluto: mesma semente → mesmos dados (FR-006, SC-004). Nenhuma fonte de entropia externa (sem `os.urandom`, sem `datetime.now()` não-seedado).
 - Zero dado pessoal real (FR-004, SC-003, constitution IV).
 - Os 2 veículos da demo devem passar pelas regras de qualidade do pipeline (Edge Case da spec) — logo, suas placas são válidas no formato canônico, apenas as *demais* fontes as grafam de forma divergente.
+- Coerência física (FR-011, SC-005, ADR-003): hodômetro monotônico por veículo e consistente entre fontes; litros derivados do modelo de consumo por tipo (research R12); valores de multa ∈ tabela de gravidades do CTB (R10); vencimento de licenciamento pelo final da placa (R11).
 
-**Scale/Scope**: 40 veículos (≈30 leves, 6 ambulâncias, 4 caminhões) × 8 meses de histórico (decisão 2026-07-14). Volume estimado: ~3.000 abastecimentos, ~600 manutenções, ~200 multas, 40 licenciamentos. Suficiente para o painel de custos agregar; pequeno o bastante para a demo.
+**Scale/Scope**: 40 veículos (≈30 leves, 6 ambulâncias, 4 caminhões) × 8 meses de histórico (decisão 2026-07-14). Volume estimado pelo modelo de consumo (research R12): ~1.500 abastecimentos, ~300 manutenções, ~100 multas (distribuição enviesada), 40+ registros de licenciamento (inclui duplicatas propositais). Suficiente para o painel de custos agregar; pequeno o bastante para a demo.
 
 ## Constitution Check
 

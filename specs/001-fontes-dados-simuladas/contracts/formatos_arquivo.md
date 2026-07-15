@@ -21,20 +21,20 @@ propositais estão listadas em `data/seeds/INCONSISTENCIAS.md` (gerado pelo `ger
 
 ```csv
 placa,data,litros,valor,condutor,km
-ABC-1234,14/07/2026,45,5,350,75,COND-042,4400
-ABC1234,2026-07-14,40,0,312,00,COND-007,8200
+ABC-1D23,14/07/2026,45,5,350,75,COND-042,4400
+XYZ1234,2026-07-14,40,0,312,00,COND-007,8200
 ```
 
 **Contrato de colunas**:
 
 | Coluna | Tipo no CSV | Obrigatório | Formato / Inconsistência |
 |---|---|---|---|
-| `placa` | string | sim | ~50% com hífen (`ABC-1234`), ~50% sem (`ABC1234`). Pipeline normaliza para `AAA9999`. |
+| `placa` | string | sim | ~50% com hífen (`ABC-1D23`), ~50% sem (`ABC1D23`); formatos Mercosul e antigo conforme o cadastro. Pipeline normaliza para o canônico (regex `^[A-Z]{3}\d[A-Z\d]\d{2}$` — ADR-001). |
 | `data` | string | sim | Mistura `dd/mm/aaaa` e `aaaa-mm-dd`. Pipeline faz parsing tolerante. |
-| `litros` | string | sim | Vírgula decimal (`45,5`). Pipeline converte para float. |
+| `litros` | string | sim | Vírgula decimal (`45,5`). Derivados do modelo de consumo (research R12). Pipeline converte para float. |
 | `valor` | string | sim | Vírgula decimal (`350,75`). Pipeline converte para float. |
 | `condutor` | string | sim | `COND-NNN` (pseudônimo, sem inconsistência — LGPD desde a origem). |
-| `km` | string | sim | Inteiro como texto (`4400`). Hodômetro lido no posto (clarificação 2026-07-14). Usado pelo pipeline para atualizar `veiculo.km_atual`; **não persistido** na tabela consolidada `ABASTECIMENTO`. |
+| `km` | string | sim | Inteiro como texto (`4400`). Hodômetro lido no posto, monotônico crescente por veículo (R12). Pipeline atualiza `veiculo.km_atual` **e persiste** como `km_hodometro` na tabela consolidada `ABASTECIMENTO` (ADR-002). |
 
 **Arquivo especial — Gatilho da demo**: `data/seeds/gatilho_demo_abastecimento.csv`
 Mesmo contrato de colunas. Contém 1 registro para o veículo da demo A, com `km` elevando
@@ -54,11 +54,12 @@ Mesmo contrato de colunas. Contém 1 registro para o veículo da demo A, com `km
 
 | Coluna | Tipo no XLSX | Obrigatório | Formato / Inconsistência |
 |---|---|---|---|
-| `placa` | string | sim | Maiúsculas sem hífen (`ABC1234`) — canônico (esta fonte é "limpa" em placa). |
+| `placa` | string | sim | Maiúsculas sem hífen (`ABC1D23` / `ABC1234`) — canônico (esta fonte é "limpa" em placa). |
 | `data` | string OU integer | sim | Mistura: `aaaa-mm-dd` (TEXT) e serial Excel (INTEGER, ex.: `46068`). Pipeline tenta ambos. |
-| `tipo` | string | sim | Texto livre não padronizado: `troca de oleo`, `Troca Óleo`, `TROCA_OLEO`, `troca óleo`. Pipeline normaliza para `troca_oleo` \| `filtros` \| `pneus` \| `revisao_geral`. |
+| `tipo` | string | sim | Texto livre não padronizado: `troca de oleo`, `Troca Óleo`, `TROCA_OLEO`, `Revisão 10.000 km` (revisões programadas de veículos em garantia — R13). Pipeline normaliza para `troca_oleo` \| `filtros` \| `pneus` \| `revisao_geral`. |
+| `categoria` | string | sim | Grafias variadas: `preventiva`, `Preventiva`, `CORRETIVA`, `prev.` — pipeline normaliza para `preventiva` \| `corretiva` e **persiste no consolidado** (ADR-003 item 7; alimenta o comparativo corretiva×preventiva do painel de custos). |
 | `km_no_momento` | integer OU vazio | não | ~15% dos registros com km ausente (célula vazia). Motor gera `dados_insuficientes` quando aplicável (spec 004). |
-| `valor` | float | sim | Ponto decimal (`280.50`) — difere do CSV de abastecimento (vírgula). |
+| `valor` | float | sim | Ponto decimal (`280.50`) — difere do CSV de abastecimento (vírgula). Corretivas calibradas a 3–5× o valor médio das preventivas (R13). |
 
 **Posicionamento da demo**: a última `troca_oleo` (aba `Oficina Central`) do veículo A tem
 `km_no_momento` tal que `km_atual - km_no_momento = 4400`. A última `troca_oleo` do veículo B
@@ -76,9 +77,9 @@ tem `data` há 166 dias (cruzou antecedência 165, não o limite 180).
 
 | Coluna | Tipo SQLite | Obrigatório | Formato / Inconsistência |
 |---|---|---|---|
-| `placa` | TEXT | sim | Maiúsculas sem hífen (`ABC1234`), mas com **duplicatas** (~20% dos veículos têm 2 linhas: vencimento antigo + atual). Pipeline deduplica por `(placa, vencimento mais recente)`. |
-| `vencimento` | TEXT OU INTEGER | sim | Formatos mistos: `dd/mm/aaaa` (TEXT), `aaaa-mm-dd` (TEXT), serial Excel (INTEGER). Pipeline faz parsing tolerante. |
-| `situacao` | TEXT | sim | `em_dia` \| `vencido` (vocabulário já padronizado nesta fonte). |
+| `placa` | TEXT | sim | Maiúsculas sem hífen (`ABC1D23` / `ABC1234`), mas com **duplicatas** (~20% dos veículos têm 2 linhas: vencimento antigo + atual). Pipeline deduplica por `(placa, vencimento mais recente)`. |
+| `vencimento` | TEXT OU INTEGER | sim | Formatos mistos: `dd/mm/aaaa` (TEXT), `aaaa-mm-dd` (TEXT), serial Excel (INTEGER). Data coerente com o **final da placa** (calendário DETRAN-SC — research R11). Pipeline faz parsing tolerante. |
+| `situacao` | TEXT | sim | `em_dia` \| `vencido` (vocabulário já padronizado nesta fonte). ≥2 registros vencidos e ≥2 vencendo em ≤7 dias (FR-010), fora dos 2 veículos da demo. |
 
 **Esquema SQL** (criado pelo gerador — sem chaves, propositalmente frouxo):
 ```sql

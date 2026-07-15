@@ -88,11 +88,13 @@ Como membro da banca (ou auditor), quero saber, para cada indicador, se ele vem 
 
 ## Assumptions
 
-- Os dados simulados (spec 001) incluem pelo menos um veículo com custo deliberadamente desproporcional para o comparativo ter o que destacar — alinhar com a frente de dados.
+- Os dados simulados (spec 001) incluem exatamente um veículo leve com custo deliberadamente desproporcional para o comparativo ter o que destacar — garantido pelo FR-009 da spec 001 (ADR-003), marcado no cadastro do gerador.
 - "Custo desproporcional" na PoC = destaque visual baseado em regra simples e explicável (ex.: custo/km acima de X% da mediana da categoria); modelos sofisticados ficam como evolução.
+- O km rodado por período (base do custo/km e do consumo km/L) é derivável da série `km_hodometro` do ABASTECIMENTO consolidado (max−min das leituras da placa no período — ADR-002); quando não houver ≥2 leituras válidas no período, vale o edge case "não calculável".
 - Multas entram no custo do veículo (visão de gestão de frota), ainda que administrativamente possam ser repassadas ao condutor — decisão de escopo da PoC, anotada na marcação do indicador.
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 6 e 10)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 4, 6 e 10)
+- ADR: `docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md` (viabiliza custo/km por período)
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 3a t1–t3)

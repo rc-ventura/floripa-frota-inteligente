@@ -33,11 +33,16 @@ Todas as ambiguidades funcionais foram resolvidas na sessão de clarificação (
 
 ## R2. Geração de CNH sintética não-real (clarificação CNH/AIT)
 
-**Decisão**: Gerar `cnh` como string de 11 dígitos numéricos aleatórios
- (`f"{rng.integers(0, 10**11):011d}"`), **sem cálculo de dígito verificador válido**.
- O formato espelha o "Número do Registro Nacional" da CNH (Resolução CONTRAN 886/2021: 9
- caracteres + 2 dígitos verificadores = 11), mas como o checksum é inválido, o número é
- obviamente sintético e não corresponde a nenhum condutor real.
+**Decisão** *(refinada em 2026-07-14 — ADR-003)*: Gerar `cnh` com 9 dígitos aleatórios,
+ **calcular o dígito verificador correto (módulo 11) e perturbá-lo de propósito**
+ (ex.: `dv_invalido = (dv_correto + 1) % 10`), totalizando 11 dígitos. O formato espelha o
+ "Número do Registro Nacional" da CNH (Resolução CONTRAN 886/2021: 9 caracteres + 2 dígitos
+ verificadores = 11), mas o checksum é **garantidamente** inválido — o número é obviamente
+ sintético e não corresponde a nenhum condutor real.
+
+ > Nota de refinamento: a decisão original ("11 dígitos aleatórios, sem calcular DV") deixava
+ > ~1% das CNHs com DV válido por coincidência, contradizendo a promessa de "checksum
+ > inválido". Perturbar o DV calculado garante 100% de invalidez estrutural.
 
 **Racional**: A clarificação decidiu que o campo `cnh` espelha o Bloco 3 do AIT (Portaria
  SENATRAN 354/2022) para evidenciar que fontes reais carregam dado pessoal. O valor precisa
@@ -68,7 +73,9 @@ Todas as ambiguidades funcionais foram resolvidas na sessão de clarificação (
 **Racional**: `openpyxl` é a engine padrão do pandas para `.xlsx` e já está no ecossistema
  (decisão D1). Multi-abas espelha o cenário real "planilha do setor de manutenção" onde
  diferentes oficinas mantêm abas separadas com padrões inconsistentes — reforça a narrativa
- de heterogeneidade (princípio III da constitution).
+ de heterogeneidade (princípio III da constitution). As colunas são o subconjunto mínimo
+ dos campos presentes em planilhas reais de manutenção de frota (veículo, data, tipo,
+ preventiva/corretiva, km no serviço, valor, oficina — ver R13); a aba codifica a oficina.
 
 **Alternativas consideradas**:
 - XLSX de aba única: rejeitado — a spec diz explicitamente "XLSX multi-abas" (FR-001, US1).
@@ -172,9 +179,13 @@ O JSON é carregado uma vez no startup (não relê a cada request). Sem banco, s
 
 ## R7. Placas: formato canônico e grafias divergentes por fonte
 
-**Decisão**: O cadastro base (`veiculos.json`) carrega a placa canônica `AAA9999`
- (maiúsculas, sem hífen). Cada fonte aplica uma *transformação de grafia* determinística ao
- escrever seus registros, para produzir as inconsistências propositais:
+**Decisão** *(atualizada em 2026-07-14 — ADR-001)*: O cadastro base (`veiculos.json`) carrega
+ a placa canônica em **um dos dois formatos vigentes** (maiúsculas, sem hífen): ~70%
+ Mercosul `AAA9A99` e ~30% antigo `AAA9999`, refletindo uma frota renovada gradualmente.
+ A regex canônica única é `^[A-Z]{3}\d[A-Z\d]\d{2}$` (cobre ambos; a normalização do
+ pipeline — upper + strip de hífen/espaço — não muda). Cada fonte aplica uma *transformação
+ de grafia* determinística ao escrever seus registros, para produzir as inconsistências
+ propositais:
 
 | Fonte | Grafia da placa | Exemplo (canônico `ABC1234`) |
 |---|---|---|
@@ -184,15 +195,16 @@ O JSON é carregado uma vez no startup (não relê a cada request). Sem banco, s
 | Licenciamento (SQLite) | Maiúsculas, mas com duplicatas (mesma placa, 2 linhas) | `ABC1234` (×2) |
 
 **Racional**: A placa é a chave de reconciliação (constitution II, arquitetura §2). As grafias
- divergentes são o input esperado do pipeline (spec 003 fará a normalização para `AAA9999`).
+ divergentes são o input esperado do pipeline (spec 003 fará a normalização para o canônico
+ dual — `AAA9999`/`AAA9A99`, ADR-001).
  Os 2 veículos da demo mantêm placas válidas no formato canônico nas fontes que usam
  maiúsculas (manutenção, licenciamento), mas também aparecem com hífen/minúsculas nas outras
  — isso NÃO os invalida, porque a normalização do pipeline os recuperará (Edge Case da spec:
  "as inconsistências não podem tornar um veículo da demo inválido" refere-se a rejeição por
  `placa_invalida`, não a grafia divergente que normaliza corretamente).
 
-**Geração de placas**: 3 letras + 4 dígitos, todas únicas no cadastro. Série determinística
- via `rng`.
+**Geração de placas**: todas únicas no cadastro, no formato sorteado para o veículo
+ (Mercosul `AAA9A99` ou antigo `AAA9999`, proporção ~70/30). Série determinística via `rng`.
 
 ---
 
@@ -233,3 +245,124 @@ Dev-dependências: `pytest>=8.0`, `httpx>=0.27` (para testar o endpoint FastAPI 
 - `requirements.txt` + `pip`: rejeitado — menos reprodutível que um lockfile gerenciado.
 - Sem gestor (instalação manual): rejeitado — viola o princípio de reprodutibilidade e
   dificulta o `docker compose up` da spec 007.
+
+---
+
+## R10. Multas: gravidade → valor fixo do CTB (ADR-003)
+
+**Decisão**: O gerador sorteia a **gravidade** da infração e deriva o `valor` da tabela do
+ CTB: leve R$ 88,38 · média R$ 130,16 · grave R$ 195,23 · gravíssima R$ 293,47 (com
+ multiplicadores ×2/×3 para uma pequena fração de gravíssimas agravadas). O JSON-fonte
+ carrega também `gravidade` e `codigo_infracao` (espelhando os blocos do AIT — Portaria
+ SENATRAN 354/2022); na carga consolidada o pipeline persiste apenas os campos do ERD
+ (`placa`, `data`, `valor`, `condutor_pseudo`, `situacao`, `fonte_origem`) — campos extras
+ da fonte são ignorados, mesmo padrão da CNH.
+
+**Racional**: valores de multa são tabelados por lei; um float contínuo sorteado é
+ imediatamente reconhecível como sintético-malfeito por qualquer avaliador que conheça os 4
+ valores canônicos. Distribuição sugerida: ~45% média, ~30% leve, ~15% grave, ~10%
+ gravíssima, **enviesada por veículo/condutor** (concentrada em poucos, incluindo o veículo
+ caro do R12) — multas uniformes por toda a frota não existem na prática e a concentração
+ alimenta a análise por condutor prevista em D8.
+
+---
+
+## R11. Licenciamento: vencimento pelo final da placa + estados para o semáforo (ADR-003)
+
+**Decisão**: `vencimento` segue o calendário do DETRAN-SC pelo **último dígito da placa**
+ (final 1 → 31/03 · final 2 → 30/04 · ... · final 9 → 30/11 · final 0 → 30/12, do ano de
+ exercício). Sobre essa base, o gerador posiciona deterministicamente: **≥2 registros
+ vencidos** (exercício anterior não renovado) e **≥2 vencendo em ≤7 dias** da data-âncora da
+ demo — nenhum deles entre os 2 veículos do cenário de alertas de manutenção (para não
+ poluir o gatilho ao vivo). Os formatos de escrita continuam propositalmente mistos
+ (`dd/mm/aaaa` TEXT, `aaaa-mm-dd` TEXT, serial Excel INTEGER — R6).
+
+**Racional**: vencimento desconectado do final da placa contradiz um calendário público que
+ qualquer catarinense conhece; e a spec 005 precisa dos três estados do semáforo
+ (ok/atenção/vencido) já na primeira carga — sem isso a tela inicial da demo nasce
+ monocromática.
+
+---
+
+## R12. Modelo de consumo, hodômetro monotônico e veículo caro (ADR-003)
+
+**Decisão**: A geração de abastecimentos deixa de sortear litros/km independentes e passa a
+ derivar de um **modelo físico simples**, por tipo de veículo:
+
+| Tipo | km/mês (faixa) | Consumo típico | Tanque | Abastecimentos/mês (≈) |
+|---|---|---|---|---|
+| leve | 1.000–2.000 | 8–14 km/L | ~45 L | 3–5 |
+| ambulancia | 2.000–3.500 | 6–10 km/L | ~60 L | 6–9 |
+| caminhao | 1.500–2.500 | 2–5 km/L | ~150 L | 4–6 |
+
+ Fluxo: sorteia-se km/mês do veículo (fixo pela semente) → série de hodômetro **monotônica
+ crescente** ao longo dos 8 meses → cada abastecimento registra a leitura corrente e litros
+ compatíveis com o trecho rodado ÷ consumo do veículo. O `km_no_momento` das manutenções é
+ interpolado da **mesma série** (consistência entre fontes). Anomalias propositais (ex.: km
+ ausente no XLSX) são as únicas exceções e ficam listadas em `INCONSISTENCIAS.md`.
+ Volumes resultantes: ~1.500 abastecimentos, ~300 manutenções, ~100 multas.
+
+ **Veículo caro (FR-009)**: um veículo leve (fora dos 2 da demo) nasce com
+ `custo_desproporcional: true`: consumo no piso da faixa (≈8 km/L), 2–3 manutenções
+ corretivas extras de valor alto e a maior concentração de multas — o suficiente para o
+ comparativo da spec 006 destacá-lo por custo/km muito acima da mediana da categoria.
+
+**Racional**: o painel de custos (spec 006) expõe derivações que a banca verifica de cabeça
+ (custo/km, km/L). Sorteios independentes produziam ~75 abastecimentos/veículo com consumo
+ implícito de 2–5 km/L em carro leve — fisicamente absurdo. O modelo mantém o gerador
+ simples (3 faixas paramétricas) e torna SC-005 testável por asserção direta.
+
+**Alternativas consideradas**:
+- Sorteios independentes por campo: rejeitado — consumo derivado absurdo (ver acima).
+- Fidelidade estatística completa (sazonalidade, distribuições reais): rejeitado —
+  complexidade sem valor de demo (constitution VII).
+
+---
+
+## R13. Manutenção realista: categoria, catálogo de marcas, garantia e revisões programadas (ADR-003 itens 7–9)
+
+**Decisão** *(2026-07-15)*: quatro regras adicionais para a Fonte 3 e o cadastro:
+
+1. **Coluna `categoria`** no XLSX (`preventiva` | `corretiva`, com grafias variadas:
+   "Preventiva", "CORRETIVA", "prev."), **persistida** na MANUTENCAO consolidada
+   (arquitetura v2 §4). O gerador calibra o valor das corretivas a **3–5× o valor médio
+   das preventivas** do mesmo tipo de veículo, concentrando-as no veículo
+   `custo_desproporcional` — assim o painel de custos demonstra o benchmark do pitch
+   (spec 007: "corretiva custa 3–5× a preventiva") nos próprios dados.
+2. **Catálogo de marcas/modelos por tipo**, observado em frotas municipais reais:
+   - leves: Fiat Strada, Chevrolet Onix, Chevrolet Spin, Chevrolet Montana, VW Gol,
+     VW Saveiro, Renault Kwid;
+   - ambulâncias: Renault Master, Fiat Ducato;
+   - caminhões: VW Delivery, Mercedes-Benz Accelo.
+   O gerador sorteia deterministicamente do catálogo; `ano` distribuído ~2015–2026.
+3. **Garantia e revisões programadas**: veículos com `ano ≥ 2023` recebem
+   `em_garantia: true` (~25% da frota; garantia típica de 3 anos). Para eles, as
+   manutenções aparecem como **revisões programadas nos marcos do fabricante**
+   (10.000 km ou 12 meses, o que vier primeiro): grafias "Revisão 10.000 km",
+   "REVISAO 20000", "revisão dos 30 mil" na aba `Manutenção Terceirizada`
+   (concessionária), normalizadas pelo pipeline para `revisao_geral`. Veículos fora de
+   garantia têm manutenção itemizada (troca_oleo, filtros, pneus) nas oficinas próprias.
+   **O motor de alertas não muda**: garantia afeta onde/como o evento aparece na fonte,
+   não a lógica de limiares.
+4. **`revisao_geral` leve/ambulância = 10.000 km/365 dias** na tabela-semente (era
+   20.000): alinha ao plano padrão de fabricante; caminhões permanecem 30.000 km.
+
+**Racional**: planilhas reais de manutenção sempre trazem preventiva×corretiva, nº de OS,
+ km e oficina — nossas colunas são o subconjunto mínimo, e `categoria` era a ausência de
+ maior valor (habilita o benchmark do pitch). Marcas/modelos do catálogo aparecem em
+ licitações e leilões de prefeituras reais. Limiares permanecem **por tipo de veículo**
+ (briefing 4.3); plano por modelo fica como evolução via coluna adicional em
+ `LIMIAR_CONFIG` com regra "mais específico vence" (dados, não código — constitution V).
+
+**Alternativas consideradas**:
+- Limiar por marca/modelo na PoC: rejeitado — os planos das marcas populares convergem
+  (10.000 km/12 meses); a tabela teria linhas quase idênticas (constitution VII).
+- Aba própria "Concessionária" no XLSX: rejeitado — a aba `Manutenção Terceirizada` já
+  cobre o cenário sem mudar o contrato de 3 abas.
+- Campos administrativos completos (nº OS, empenho, peças × mão de obra): rejeitado na
+  PoC — não alimentam motor nem painel; documentados como staging futuro numa
+  integração real.
+
+**Referências**: ver ADR-003 (adendo 2026-07-15) — planilhas de manutenção (Produttivo,
+ Cobli, Guia do Excel), revisão programada Fiat, garantia condicionada (AutoPapo), frota
+ municipal de Itaí-SP e leilões de prefeitura.

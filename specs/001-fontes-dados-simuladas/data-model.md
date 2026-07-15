@@ -20,21 +20,30 @@ canônico que o gerador usa para derivar as 4 fontes com grafias divergentes).
 ```json
 [
   {
-    "placa": "ABC1234",           // canônico AAA9999 (maiúsculas, sem hífen)
+    "placa": "ABC1D23",            // canônico: Mercosul AAA9A99 (~70%) ou antigo AAA9999 (~30%) — ADR-001
     "tipo_veiculo": "leve",        // leve | ambulancia | caminhao
-    "modelo": "Fiat Strada",       // sintético
-    "ano": 2021,
+    "modelo": "Fiat Strada",       // catálogo real de frota municipal por tipo (R13)
+    "ano": 2021,                   // distribuído ~2015–2026 (R13)
+    "em_garantia": false,          // true quando ano >= 2023 (~25% da frota — R13)
     "secretaria": "Saúde",         // sintético
-    "km_atual": 4400,              // para veículo da demo A; demais: aleatório dentro do limite
+    "km_atual": 4400,              // para veículo da demo A; demais: derivado do modelo de consumo (R12)
+    "km_mes": 1500,                // km/mês sorteado na faixa do tipo (R12) — base da série de hodômetro
     "demo_gatilho": true,          // true para os 2 veículos da demo (índices 0 e 1)
-    "demo_gatilho_tipo": "km"      // "km" | "tempo" | null
+    "demo_gatilho_tipo": "km",     // "km" | "tempo" | null
+    "custo_desproporcional": false // true para exatamente 1 leve fora da demo (FR-009, R12)
   }
 ]
 ```
 
 **Regras de validação (internas do gerador)**:
 - 40 veículos: ≈30 leves, 6 ambulâncias, 4 caminhões (decisão 2026-07-14).
-- Placas únicas, formato `^[A-Z]{3}[0-9]{4}$`.
+- Placas únicas, formato `^[A-Z]{3}\d[A-Z\d]\d{2}$` (cobre antigo `AAA9999` e Mercosul
+  `AAA9A99`); mistura ~70% Mercosul / ~30% antigo (ADR-001).
+- Exatamente 1 veículo leve (fora dos índices 0 e 1) com `custo_desproporcional=true`:
+  consumo no piso da faixa, corretivas extras e multas concentradas (FR-009, R12).
+- Marca/modelo sorteados do catálogo real por tipo (R13); `em_garantia=true` quando
+  `ano ≥ 2023` (~25% da frota) — esses veículos fazem revisões programadas nos marcos do
+  fabricante (FR-012/FR-013).
 - Veículo índice 0: `demo_gatilho=true`, `demo_gatilho_tipo="km"`, `km_atual=4400`.
 - Veículo índice 1: `demo_gatilho=true`, `demo_gatilho_tipo="tempo"`, `km_atual` aleatório
   dentro do limite; última `troca_oleo` há 166 dias (cruzou antecedência 165, não o limite 180).
@@ -46,16 +55,16 @@ canônico que o gerador usa para derivar as 4 fontes com grafias divergentes).
 ## Fonte 1 — Abastecimento (CSV)
 
 **Arquivo**: `data/seeds/abastecimento.csv`
-**Volume**: ~3.000 registros (40 veículos × ~75 abastecimentos em 8 meses).
+**Volume**: ~1.500 registros (derivado do modelo de consumo por tipo de veículo — R12).
 
 | Coluna | Tipo (no CSV) | Exemplo | Inconsistência propositais |
 |---|---|---|---|
-| `placa` | TEXT | `ABC-1234` / `ABC1234` | ~50% com hífen, ~50% sem hífen (mistura) |
+| `placa` | TEXT | `ABC-1D23` / `ABC1D23` / `ABC-1234` | ~50% com hífen, ~50% sem hífen (mistura; formatos Mercosul e antigo conforme o cadastro) |
 | `data` | TEXT | `14/07/2026` / `2026-07-14` | Mistura de `dd/mm/aaaa` e `aaaa-mm-dd` |
-| `litros` | TEXT | `45,5` | Vírgula decimal (não ponto) |
+| `litros` | TEXT | `45,5` | Vírgula decimal (não ponto); derivados do trecho rodado ÷ consumo do veículo (R12) |
 | `valor` | TEXT | `350,75` | Vírgula decimal |
 | `condutor` | TEXT | `COND-042` | Pseudônimo (sem inconsistência — LGPD desde a origem) |
-| `km` | TEXT | `4400` | Hodômetro lido no posto (clarificação 2026-07-14); usado pelo pipeline para atualizar `veiculo.km_atual`, **não persistido** na tabela consolidada |
+| `km` | TEXT | `4400` | Hodômetro lido no posto, **monotônico crescente** por veículo (R12); o pipeline atualiza `veiculo.km_atual` **e persiste** como `km_hodometro` no consolidado (ADR-002) |
 
 **Arquivo especial — Gatilho da demo**: `data/seeds/gatilho_demo_abastecimento.csv`
 Mesma estrutura de colunas. Contém **1 registro** para o veículo da demo A (índice 0): um
@@ -68,21 +77,27 @@ antecedência (`limite_km - antecedencia_km = 5000 - 500 = 4500`). Depositado em
 ## Fonte 2 — Multas (JSON servido por API)
 
 **Arquivo**: `fake_api/multas.json` (servido por `fake_api/main.py`, ver `contracts/api_multas.md`)
-**Volume**: ~200 registros.
+**Volume**: ~100 registros, distribuição **enviesada** por veículo/condutor (concentrada em
+poucos, incluindo o veículo de `custo_desproporcional` — R10/R12).
 
 ```json
 [
   {
-    "placa": "abc1234",            // minúsculas, sem hífen (inconsistência propositais)
+    "placa": "abc1d23",            // minúsculas, sem hífen (inconsistência propositais)
     "data": "2026-05-20",          // aaaa-mm-dd
-    "valor": 130.16,               // número (ponto decimal — difere do CSV de abastecimento)
+    "gravidade": "media",          // leve | media | grave | gravissima (sorteada — R10)
+    "valor": 130.16,               // derivado da gravidade: tabela CTB (88.38 | 130.16 | 195.23 | 293.47 e multiplicadores) — R10
     "condutor": "COND-042",        // pseudônimo
-    "cnh": "01234567890",          // 11 dígitos sintéticos, checksum inválido (research R2)
+    "cnh": "01234567890",          // 11 dígitos sintéticos, DV propositalmente inválido (research R2)
     "situacao": "pendente",        // pendente | paga
     "codigo_infracao": "7455-1"    // código do enquadramento (Portaria 354/2022, Bloco 5)
   }
 ]
 ```
+
+> Na carga consolidada, o pipeline (spec 003) persiste apenas os campos do ERD (`placa`,
+> `data`, `valor`, `condutor_pseudo`, `situacao`, `fonte_origem`); `cnh`, `gravidade` e
+> `codigo_infracao` são fonte-apenas (ADR-003).
 
 **Inconsistências propositais**: placa em minúsculas; campo `cnh` presente (dado pessoal —
 espelha Bloco 3 do AIT, Portaria SENATRAN 354/2022). O pipeline (spec 003) descarta `cnh` na
@@ -96,7 +111,12 @@ validação oficial de checksum (módulo 11) — obviamente não-real.
 ## Fonte 3 — Manutenção (XLSX multi-abas)
 
 **Arquivo**: `data/seeds/manutencao.xlsx`
-**Volume**: ~600 registros distribuídos em 3 abas.
+**Volume**: ~300 registros distribuídos em 3 abas (cadência derivada dos limiares × km/mês
+do veículo, + corretivas — R12; o veículo de `custo_desproporcional` recebe 2–3 corretivas
+extras de valor alto). Veículos `em_garantia` registram **revisões programadas nos marcos
+do fabricante** (10.000 km/12 meses) na aba `Manutenção Terceirizada`, com grafias como
+"Revisão 10.000 km" (R13). Corretivas calibradas a 3–5× o valor médio das preventivas
+(benchmark do pitch — spec 007).
 
 **Abas** (cada uma espelha uma oficina/setor diferente, com padrões de texto inconsistentes):
 1. `Oficina Central`
@@ -107,11 +127,12 @@ validação oficial de checksum (módulo 11) — obviamente não-real.
 
 | Coluna | Tipo (no XLSX) | Exemplo | Inconsistência propositais |
 |---|---|---|---|
-| `placa` | TEXT | `ABC1234` | Maiúsculas sem hífen (canônico — esta fonte é a "limpa" em termos de placa) |
+| `placa` | TEXT | `ABC1D23` / `ABC1234` | Maiúsculas sem hífen (canônico — esta fonte é a "limpa" em termos de placa) |
 | `data` | TEXT / serial Excel | `2026-03-15` / `46068` | Mistura de `aaaa-mm-dd` (TEXT) e serial Excel (INTEGER) |
-| `tipo` | TEXT | `troca de oleo` / `Troca Óleo` / `TROCA_OLEO` | Texto livre, sem padronização (normaliza para `troca_oleo` no pipeline) |
-| `km_no_momento` | INTEGER / vazio | `4400` / `(vazio)` | Km ausente em ~15% dos registros (gera alerta `dados_insuficientes` no motor se aplicável) |
-| `valor` | FLOAT | `280.50` | Ponto decimal (difere do CSV de abastecimento) |
+| `tipo` | TEXT | `troca de oleo` / `Troca Óleo` / `Revisão 10.000 km` | Texto livre, sem padronização (normaliza para o vocabulário canônico no pipeline; grafias de revisão programada → `revisao_geral` — R13) |
+| `categoria` | TEXT | `preventiva` / `Preventiva` / `CORRETIVA` / `prev.` | Grafias variadas (normaliza para `preventiva` \| `corretiva`); **persistida no consolidado** (ADR-003 item 7) |
+| `km_no_momento` | INTEGER / vazio | `4400` / `(vazio)` | Interpolado da **mesma série de hodômetro** dos abastecimentos (R12); ausente em ~15% dos registros (anomalia propositais — gera `dados_insuficientes` no motor se aplicável) |
+| `valor` | FLOAT | `280.50` | Ponto decimal (difere do CSV de abastecimento); corretivas 3–5× o médio das preventivas (R13) |
 
 **Regras de posicionamento da demo**: a última `troca_oleo` do veículo A (índice 0) tem
 `km_no_momento` tal que `km_atual - km_no_momento = 4400` (faltam 600 para o limite 5000).
@@ -128,9 +149,9 @@ A última `troca_oleo` do veículo B (índice 1) tem `data` há 166 dias (cruzou
 
 | Coluna | Tipo (SQLite) | Exemplo | Inconsistência propositais |
 |---|---|---|---|
-| `placa` | TEXT | `ABC1234` | Maiúsculas sem hífen, mas com **duplicatas** (~20% dos veículos têm 2 registros: vencimento antigo + atual) |
-| `vencimento` | TEXT / INTEGER | `15/08/2026` / `2026-08-15` / `46042` | Formatos mistos: `dd/mm/aaaa` (TEXT), `aaaa-mm-dd` (TEXT), serial Excel (INTEGER) |
-| `situacao` | TEXT | `em_dia` / `vencido` | Sem inconsistência (vocabulário já padronizado nesta fonte) |
+| `placa` | TEXT | `ABC1D23` / `ABC1234` | Maiúsculas sem hífen, mas com **duplicatas** (~20% dos veículos têm 2 registros: vencimento antigo + atual) |
+| `vencimento` | TEXT / INTEGER | `15/08/2026` / `2026-08-15` / `46042` | Formatos mistos: `dd/mm/aaaa` (TEXT), `aaaa-mm-dd` (TEXT), serial Excel (INTEGER). Data coerente com o **final da placa** (calendário DETRAN-SC: final 1 → 31/03 ... final 0 → 30/12 — R11) |
+| `situacao` | TEXT | `em_dia` / `vencido` | Sem inconsistência (vocabulário já padronizado nesta fonte); ≥2 registros **vencidos** e ≥2 **vencendo em ≤7 dias** para o semáforo da spec 005 (FR-010, R11) — nenhum deles entre os 2 veículos da demo |
 
 **Esquema SQL** (criado pelo gerador):
 ```sql
@@ -156,9 +177,9 @@ de duplicação local).
   {"tipo_veiculo": "leve", "tipo_manutencao": "troca_oleo", "limite_km": 5000, "limite_dias": 180, "antecedencia_km": 500, "antecedencia_dias": 15},
   {"tipo_veiculo": "leve", "tipo_manutencao": "filtros", "limite_km": 5000, "limite_dias": 180, "antecedencia_km": 500, "antecedencia_dias": 15},
   {"tipo_veiculo": "leve", "tipo_manutencao": "pneus", "limite_km": 40000, "limite_dias": 720, "antecedencia_km": 2000, "antecedencia_dias": 30},
-  {"tipo_veiculo": "leve", "tipo_manutencao": "revisao_geral", "limite_km": 20000, "limite_dias": 365, "antecedencia_km": 1000, "antecedencia_dias": 30},
+  {"tipo_veiculo": "leve", "tipo_manutencao": "revisao_geral", "limite_km": 10000, "limite_dias": 365, "antecedencia_km": 1000, "antecedencia_dias": 30},
   {"tipo_veiculo": "ambulancia", "tipo_manutencao": "troca_oleo", "limite_km": 5000, "limite_dias": 180, "antecedencia_km": 500, "antecedencia_dias": 15},
-  {"tipo_veiculo": "ambulancia", "tipo_manutencao": "revisao_geral", "limite_km": 20000, "limite_dias": 365, "antecedencia_km": 1000, "antecedencia_dias": 30},
+  {"tipo_veiculo": "ambulancia", "tipo_manutencao": "revisao_geral", "limite_km": 10000, "limite_dias": 365, "antecedencia_km": 1000, "antecedencia_dias": 30},
   {"tipo_veiculo": "caminhao", "tipo_manutencao": "troca_oleo", "limite_km": 10000, "limite_dias": 180, "antecedencia_km": 1000, "antecedencia_dias": 15},
   {"tipo_veiculo": "caminhao", "tipo_manutencao": "pneus", "limite_km": 60000, "limite_dias": 720, "antecedencia_km": 3000, "antecedencia_dias": 30},
   {"tipo_veiculo": "caminhao", "tipo_manutencao": "revisao_geral", "limite_km": 30000, "limite_dias": 365, "antecedencia_km": 1500, "antecedencia_dias": 30}
@@ -171,7 +192,9 @@ de duplicação local).
 
 As 4 fontes não têm chaves estrangeiras entre si (são sistemas legados isolados). A
 reconciliação acontece no pipeline (spec 003) via **normalização da placa** para o formato
-canônico `AAA9999`. O diagrama abaixo mostra a relação lógica (não física):
+canônico — maiúsculas, sem hífen, nos dois padrões vigentes (`AAA9999` antigo e `AAA9A99`
+Mercosul; regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`, ADR-001). O diagrama abaixo mostra a relação
+lógica (não física):
 
 ```mermaid
 flowchart LR
@@ -184,7 +207,7 @@ flowchart LR
     CAD --> F2
     CAD --> F3
     CAD --> F4
-    F1 -. normaliza placa .-> CAN["AAA9999<br/>(no pipeline, spec 003)"]
+    F1 -. normaliza placa .-> CAN["canônico: AAA9999 | AAA9A99<br/>(no pipeline, spec 003)"]
     F2 -. normaliza placa .-> CAN
     F3 -. normaliza placa .-> CAN
     F4 -. normaliza placa + deduplica .-> CAN

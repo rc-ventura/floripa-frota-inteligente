@@ -27,8 +27,9 @@ Retorna a lista completa de multas simuladas.
 ```json
 [
   {
-    "placa": "abc1234",
+    "placa": "abc1d23",
     "data": "2026-05-20",
+    "gravidade": "media",
     "valor": 130.16,
     "condutor": "COND-042",
     "cnh": "01234567890",
@@ -42,13 +43,14 @@ Retorna a lista completa de multas simuladas.
 
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `placa` | string | sim | Placa em **minúsculas, sem hífen** (inconsistência propositais; o pipeline normaliza para `AAA9999`) |
+| `placa` | string | sim | Placa em **minúsculas, sem hífen** (inconsistência propositais; o pipeline normaliza para o canônico — regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`, ADR-001) |
 | `data` | string (`aaaa-mm-dd`) | sim | Data da infração |
-| `valor` | number (float) | sim | Valor da multa em BRL (ponto decimal) |
+| `gravidade` | string | sim | `leve` \| `media` \| `grave` \| `gravissima` (research R10). **Fonte-apenas: ignorada na carga consolidada.** |
+| `valor` | number (float) | sim | Valor da multa em BRL, **derivado da gravidade** — tabela CTB: 88.38 \| 130.16 \| 195.23 \| 293.47 (e multiplicadores ×2/×3) — R10 |
 | `condutor` | string | sim | Pseudônimo `COND-NNN` (LGPD — nenhum nome real) |
-| `cnh` | string (11 dígitos) | sim | CNH sintética não-real (checksum inválido; espelha Bloco 3 do AIT — Portaria SENATRAN 354/2022). **Descartada pelo pipeline na carga consolidada.** |
+| `cnh` | string (11 dígitos) | sim | CNH sintética não-real (DV propositalmente inválido — research R2; espelha Bloco 3 do AIT — Portaria SENATRAN 354/2022). **Descartada pelo pipeline na carga consolidada.** |
 | `situacao` | string | sim | `pendente` \| `paga` |
-| `codigo_infracao` | string | sim | Código de enquadramento (Bloco 5 do AIT) |
+| `codigo_infracao` | string | sim | Código de enquadramento (Bloco 5 do AIT). **Fonte-apenas: ignorada na carga consolidada.** |
 
 **Erros**:
 - `500` — erro ao ler `multas.json` (arquivo ausente ou malformado). O pipeline (spec 003)

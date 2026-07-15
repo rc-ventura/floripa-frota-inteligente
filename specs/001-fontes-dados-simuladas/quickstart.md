@@ -3,7 +3,8 @@
 **Branch**: `feature/001-fontes-dados-simuladas` | **Date**: 2026-07-14
 
 Guia de validação executável para confirmar que a spec 001 está implementada corretamente.
-Cobre os critérios de sucesso SC-001 a SC-004 e os requisitos funcionais FR-001 a FR-008.
+Cobre os critérios de sucesso SC-001 a SC-006 e os requisitos funcionais FR-001 a FR-013
+(incluindo a revisão de realismo de 2026-07-14/15 — ADRs 001–003).
 Para os contratos detalhados, ver `contracts/`; para o shape dos dados, ver `data-model.md`.
 
 ---
@@ -86,8 +87,9 @@ extraído dos dados gerados. Confirmação item a item:
 | Abastecimento CSV | placas com/sem hífen | `cut -d, -f1 data/seeds/abastecimento.csv \| sort -u` mostra ambas as grafias |
 | Abastecimento CSV | datas em 2 formatos | `cut -d, -f2 data/seeds/abastecimento.csv` mostra `dd/mm/aaaa` e `aaaa-mm-dd` |
 | Abastecimento CSV | vírgula decimal | `cut -d, -f3 data/seeds/abastecimento.csv` mostra `45,5` |
-| Multas JSON | placas em minúsculas | `jq '.[].placa' fake_api/multas.json` mostra `abc1234` |
+| Multas JSON | placas em minúsculas | `jq '.[].placa' fake_api/multas.json` mostra `abc1d23` |
 | Multas JSON | campo `cnh` sintético | `jq '.[].cnh' fake_api/multas.json` mostra 11 dígitos |
+| Multas JSON | valores tabelados CTB | `jq '[.[].valor] \| unique' fake_api/multas.json` só contém 88.38/130.16/195.23/293.47 (e multiplicadores) |
 | Manutenção XLSX | km ausente | `python -c "import pandas as pd; print(pd.read_excel('data/seeds/manutencao.xlsx', sheet_name=None)['Oficina Central'].isna().sum())"` |
 | Manutenção XLSX | tipo não padronizado | `python -c "import pandas as pd; print(pd.read_excel('data/seeds/manutencao.xlsx')['tipo'].unique())"` mostra "troca de oleo", "Troca Óleo", etc. |
 | Licenciamento SQLite | placas duplicadas | `sqlite3 data/seeds/licenciamento.sqlite "SELECT placa, COUNT(*) FROM licenciamento GROUP BY placa HAVING COUNT(*)>1"` |
@@ -168,7 +170,29 @@ pytest tests/test_gerador_dados.py::test_endpoint_multas -v
 
 ---
 
-## Cenário 7 — Suíte completa de testes
+## Cenário 7 — Coerência física e cenários das specs 005/006 (FR-009..011, SC-005)
+
+**Verificações** (revisão de realismo 2026-07-14 — ADR-003):
+
+| Verificação | Como inspecionar |
+|---|---|
+| Placas nos 2 formatos (~70% Mercosul) | `jq '[.[].placa] \| map(test("^[A-Z]{3}[0-9][A-Z][0-9]{2}$")) \| (map(select(.)) \| length)' data/seeds/veiculos.json` ≈ 28 |
+| Hodômetro monotônico por veículo | ordenar `abastecimento.csv` por placa+data e conferir `km` não-decrescente (exceto anomalias em `INCONSISTENCIAS.md`) |
+| Consumo plausível por tipo | km rodados ÷ litros dentro das faixas: leve 8–14 km/L, ambulância 6–10, caminhão 2–5 (research R12) |
+| Veículo caro existe | `jq '[.[] \| select(.custo_desproporcional)] \| length' data/seeds/veiculos.json` → `1` (leve, fora dos 2 da demo) |
+| Licenciamento pelo final da placa | vencimento no mês do calendário DETRAN-SC (final 1 → março ... final 0 → dezembro) |
+| Estados do semáforo | `sqlite3 data/seeds/licenciamento.sqlite "SELECT situacao, COUNT(*) FROM licenciamento GROUP BY situacao"` → ≥2 vencidos; ≥2 vencendo em ≤7 dias |
+| Garantia × revisões programadas | `jq '[.[] \| select(.em_garantia)] \| length' data/seeds/veiculos.json` ≈ 10 (~25%); cada um tem registro "Revisão N km" no XLSX dentro do marco vigente (10.000 km/12 meses) |
+| Razão corretiva ÷ preventiva | média de `valor` das corretivas ÷ média das preventivas (após normalizar `categoria`) entre 3× e 5× (SC-006 — benchmark do pitch da spec 007) |
+
+**Verificação automatizada**:
+```bash
+pytest tests/test_gerador_dados.py::test_coerencia_fisica -v
+```
+
+---
+
+## Cenário 8 — Suíte completa de testes
 
 ```bash
 pytest tests/test_gerador_dados.py -v
@@ -180,6 +204,7 @@ pytest tests/test_gerador_dados.py -v
 - US3 (cenário da demo) → Cenário 5.
 - US4 (LGPD) → Cenário 4.
 - FR-008 (endpoint) → Cenário 6.
+- FR-009..011 / SC-005 (coerência física, veículo caro, semáforo) → Cenário 7.
 - SC-001 (tempo < 1 min) → Cenário 1 (medir com `time python data/gerador_dados.py`).
 - SC-004 (determinismo) → Cenário 2.
 

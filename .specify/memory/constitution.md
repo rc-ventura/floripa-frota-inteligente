@@ -1,5 +1,12 @@
 <!--
 Sync Impact Report
+- Version change: 1.0.0 → 1.0.1 (PATCH — clarificação do formato de placa canônica)
+- Modified principles: III — placa canônica passa a aceitar os dois formatos vigentes
+  (antigo AAA9999 e Mercosul AAA9A99), normalização inalterada. Decisão registrada em
+  docs/decisoes/ADR-001 e arquitetura v2 (§2, D7). Ratifica com o merge do MR da
+  feature/001-fontes-dados-simuladas em dev.
+
+Histórico anterior (1.0.0):
 - Version change: (template sem versão) → 1.0.0
 - Modified principles: n/a (adoção inicial — template preenchido pela primeira vez)
 - Added sections:
@@ -22,7 +29,8 @@ Sync Impact Report
 Derivada do briefing oficial do desafio (`Desafio13_briefingFrotaMunicipal.docx`, fonte de
 desempate) e dos seus critérios de aceite/avaliação, conforme consolidados em
 `wiki/wiki_desafio13_frota_municipal.md` (matriz de rastreabilidade, marco legal) e
-`wiki/arquitetura_tecnica_desafio13_v1.md` (decisões D1–D8).
+`wiki/arquitetura_tecnica_desafio13_v2.md` (decisões D1–D8; versão vigente — a v1 permanece
+no repositório como histórico).
 
 ## Core Principles
 
@@ -52,7 +60,9 @@ MUST ir para `log_qualidade` com motivo explícito (`placa_invalida`, `data_ause
 ### III. Dado inconsistente é requisito, não exceção
 
 As fontes municipais são heterogêneas por natureza (risco nº 1 do briefing). O sistema MUST
-tratar dado sujo como entrada esperada: placa normalizada para o canônico `AAA9999` antes de
+tratar dado sujo como entrada esperada: placa normalizada para o formato canônico —
+maiúsculas, sem hífen, nos dois formatos vigentes (`AAA9999` antigo e `AAA9A99` Mercosul;
+regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`, ver ADR-001) — antes de
 qualquer cruzamento; parsing tolerante de datas e decimais; vocabulário padronizado;
 deduplicação por chave natural. Diante de dado impossível de avaliar, o comportamento MUST
 ser explícito (rejeição com motivo, alerta `dados_insuficientes`) — nunca falha silenciosa
@@ -106,9 +116,10 @@ de avaliação (briefing 11).
 
 ## Restrições Adicionais
 
-- Stack e decisões técnicas seguem as decisões D1–D8 de
-  `wiki/arquitetura_tecnica_desafio13_v1.md`; mudança de decisão arquitetural MUST
-  incrementar a versão daquele documento e registrar a alteração (ADR quando apropriado).
+- Stack e decisões técnicas seguem as decisões D1–D8 da versão vigente do documento de
+  arquitetura (`wiki/arquitetura_tecnica_desafio13_vN.md`; vigente: v2); mudança de decisão
+  arquitetural MUST incrementar a versão daquele documento e registrar a alteração (ADR em
+  `docs/decisoes/` quando apropriado).
 - Idioma de trabalho: português em documentos e no código de domínio (tabelas, variáveis de
   negócio), conforme convenções da wiki (§7).
 - O briefing oficial é o documento de desempate: em conflito entre artefatos, vale o
@@ -135,4 +146,4 @@ princípios — em especial II (rastreabilidade), IV (conformidade) e VI (idempo
 os critérios com risco direto de desclassificação ou de quebra da demo. Violações
 justificáveis MUST ser registradas no Complexity Tracking do plano da feature.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-13 | **Last Amended**: 2026-07-13
+**Version**: 1.0.1 | **Ratified**: 2026-07-13 | **Last Amended**: 2026-07-14

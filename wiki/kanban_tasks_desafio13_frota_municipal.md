@@ -26,7 +26,7 @@ Este documento é a versão legível em Markdown do CSV de importação do quadr
 |---|---|---|---|---|
 | 1 | Definir papéis da equipe | Cada integrante com papel claro: dados, backend, frontend, docs/pitch. Critério: tabela de papéis registrada no repositório. | 👥 Todos | Normal |
 | 2 | Decidir dados reais vs simulados | Confirmar com a organização se haverá amostra real; caso contrário, formalizar uso de dados simulados com estrutura representativa. | 🗂️ Dados | Normal |
-| 3 | Validar modelo de dados unificado | Revisar o ERD do documento de arquitetura (8 tabelas, placa como chave canônica AAA9999). Critério: equipe aprova ou registra ajustes. | 🗂️ Dados | Normal |
+| 3 | Validar modelo de dados unificado | Revisar o ERD do documento de arquitetura v2 (8 tabelas, placa como chave canônica nos formatos AAA9999/AAA9A99 — ADR-001; ABASTECIMENTO com km_hodometro — ADR-002). Critério: equipe aprova ou registra ajustes. | 🗂️ Dados | Normal |
 | 4 | Definir limiares iniciais (LIMIAR_CONFIG) 🔴 demo-crítico | Preencher a tabela para ≥2 tipos de veículo × 2-3 tipos de manutenção, com limite_km, limite_dias e antecedências. | ⚙️ Backend | **Alta** |
 | 5 | Mapear campos com dado pessoal 🟡 compliance | Marcar no modelo os campos que vinculam servidor identificado (condutor, CNH, matrícula). Critério: lista registrada em docs/. | 📄 Docs | **Alta** |
 

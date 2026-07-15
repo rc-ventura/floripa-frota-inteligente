@@ -125,5 +125,5 @@ Como equipe, precisamos do discurso frente ao mercado: solução baseada em font
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 7-D6, 8 e 10)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 7-D6, 8 e 10)
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 0 t5, Fase 4 t1–t6)
