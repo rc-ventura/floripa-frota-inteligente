@@ -37,7 +37,7 @@ Como apresentador da demo, preciso alterar um limiar de manutenção com o siste
 
 **Acceptance Scenarios**:
 
-1. **Given** o banco recém-criado, **When** consultada LIMIAR_CONFIG, **Then** existem limiares para ≥2 tipos de veículo × 2–3 tipos de manutenção, com limite de km, limite de dias e antecedências preenchidos.
+1. **Given** o banco recém-criado, **When** consultada LIMIAR_CONFIG, **Then** existem as 9 linhas da tabela-semente da spec 001 (≥2 tipos de veículo × ≥2 tipos de manutenção), com limite de km, limite de dias e antecedências preenchidos.
 2. **Given** o sistema em execução, **When** um limiar é alterado diretamente na configuração, **Then** nenhuma alteração de código ou reinicialização é necessária para o novo valor valer.
 
 ---
@@ -65,10 +65,10 @@ Como responsável por conformidade, preciso que toda tabela consolidada carregue
 
 ### Functional Requirements
 
-- **FR-001**: O esquema MUST materializar as 8 entidades do ERD da arquitetura v2 (seção 4 — inclui `km_hodometro` nullable no ABASTECIMENTO, ADR-002), com placa canônica (formatos `AAA9999` e `AAA9A99` — ADR-001) como chave natural de VEICULO e chave estrangeira dos eventos.
+- **FR-001**: O esquema MUST materializar as 7 entidades do diagrama do ERD da arquitetura v2 (seção 4 — inclui `km_hodometro` nullable no ABASTECIMENTO, ADR-002, e `categoria` na MANUTENCAO, ADR-003) mais as tabelas de apoio listadas fora do diagrama (`stg_*` por fonte e `log_qualidade`), com placa canônica (formatos `AAA9999` e `AAA9A99` — ADR-001) como chave natural de VEICULO e chave estrangeira dos eventos.
 - **FR-002**: MUST existir uma tabela de staging por fonte (`stg_*`), espelhando o formato bruto, com carimbo de data/hora da carga e identificação do arquivo/endpoint de origem.
 - **FR-003**: MUST existir `log_qualidade` (fonte, registro bruto, motivo da rejeição, momento da carga) para receber registros rejeitados pelo pipeline.
-- **FR-004**: LIMIAR_CONFIG MUST ser tabela de dados editável em tempo de execução, semeada com ≥2 tipos de veículo × 2–3 tipos de manutenção (limite_km, limite_dias, antecedencia_km, antecedencia_dias) — valores combinados com a spec 001 para o cenário da demo.
+- **FR-004**: LIMIAR_CONFIG MUST ser tabela de dados editável em tempo de execução, semeada com ≥2 tipos de veículo × ≥2 tipos de manutenção (limite_km, limite_dias, antecedencia_km, antecedencia_dias) — exatamente a tabela-semente de 9 linhas da spec 001 (`data/seeds/limiares_semente.json`, fonte única; 3 tipos de veículo × até 4 manutenções).
 - **FR-005**: ALERTA MUST suportar histórico permanente (situação `ativo`/`resolvido`, nunca apagado) e vínculo ao limiar que o parametrizou.
 - **FR-006**: Toda tabela consolidada MUST carregar `fonte_origem`; condutores MUST existir apenas como `condutor_pseudo` (sem tabela de-para na PoC).
 - **FR-007**: A criação do esquema MUST ser automatizada e reproduzível (versionada via migrations), executável em um comando a partir do repositório limpo.
