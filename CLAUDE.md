@@ -9,7 +9,7 @@ disparado antes do vencimento, em demo ao vivo e reproduzível.
 ## Documentos-fonte (ordem de desempate)
 
 1. `Desafio13_briefingFrotaMunicipal.docx` — briefing oficial (não editar)
-2. `wiki/arquitetura_tecnica_desafio13_v1.md` — decisões técnicas D1–D8, ERD, pipeline, stack
+2. `wiki/arquitetura_tecnica_desafio13_v2.md` — decisões técnicas D1–D8, ERD, pipeline, stack (v1 preservada; mudanças da v2 nos ADRs 001–002)
 3. `specs/` — 7 especificações (ver `specs/README.md` para o mapa e dependências)
 4. `wiki/kanban_tasks_desafio13_frota_municipal.md` — 36 tasks por fase
 5. `.specify/memory/constitution.md` — princípios inegociáveis (resumo abaixo)
@@ -28,8 +28,9 @@ disparado antes do vencimento, em demo ao vivo e reproduzível.
 ## Regras inegociáveis (constitution v1.0.0 — ler antes de codar)
 
 - **Demo-crítico primeiro**: priorize sempre o caminho do disparo do alerta ao vivo.
-- **Placa canônica `AAA9999`** (maiúsculas, sem hífen) é a chave de reconciliação; normalize
-  antes de qualquer cruzamento.
+- **Placa canônica** (maiúsculas, sem hífen; formatos antigo `AAA9999` **e** Mercosul
+  `AAA9A99` — regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`, ADR-001) é a chave de reconciliação;
+  normalize antes de qualquer cruzamento.
 - **Rastreabilidade**: toda tabela consolidada carrega `fonte_origem`; staging carrega
   carimbo de carga; rejeição nunca é silenciosa — vai para `log_qualidade` com motivo.
 - **LGPD**: nenhum dado pessoal real, nunca. Condutor existe apenas como `condutor_pseudo`
@@ -60,3 +61,19 @@ docs/decisoes/   ADRs                                         specs/       espec
   deixe para depois.
 - Vocabulários padronizados em snake_case (ex.: `troca_oleo`); motivos de rejeição idem
   (`placa_invalida`, `data_ausente`, `duplicado`).
+
+## ADRs — Decisões técnicas
+
+> Pasta: `./docs/decisoes/`
+
+| ADR | Título | Status | Data |
+|-----|--------|--------|------|
+| [ADR-001](./docs/decisoes/ADR-001-placa-canonica-dois-formatos.md) | Placa canônica aceita os dois formatos brasileiros (antigo + Mercosul) | Proposta | 2026-07-14 |
+| [ADR-002](./docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md) | Persistir o km do hodômetro na tabela consolidada `ABASTECIMENTO` | Proposta | 2026-07-14 |
+| [ADR-003](./docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md) | Calibração de realismo das fontes simuladas (gerador — spec 001) | Proposta | 2026-07-14 |
+
+## Learning Lessons
+
+> Pasta: `./docs/learning-lessons/`
+
+- [Proteja a âncora do ruído: teste o invariante negativo em geradores de dados](./docs/learning-lessons/proteja_a_ancora_do_ruido_e_teste_o_invariante_negativo.md) — 2026-07-15

@@ -1,7 +1,7 @@
 # Wiki do Projeto — Desafio 13: Gestão Inteligente da Frota Municipal
 
 **1ª Jornada Incubintech de Inovação Aberta** · Demandante: Secretaria Municipal de Administração de Florianópolis
-**Última atualização deste índice:** 13/07/2026
+**Última atualização deste índice:** 14/07/2026
 
 Esta página é o ponto de entrada único do projeto: reúne, resume e conecta todos os documentos produzidos até aqui. Quem chegar agora à equipe deve conseguir se situar lendo só esta página, e ir aos documentos originais apenas para o detalhe que precisar.
 
@@ -45,7 +45,9 @@ O problema, em uma frase: a frota municipal tem seus dados espalhados em sistema
 | Briefing técnico (fonte oficial) | 📄 Recebido | — | Documento do demandante; não é editado pela equipe |
 | Roadmap de fases | ✅ Concluído | — | Base para todo planejamento subsequente |
 | Checkpoint 1 | ✅ Entregue | Prazo 08/07/2026 | Composição da equipe ainda com campos `[preencher]` |
-| Arquitetura técnica v1 | ✅ Concluído | 12/07/2026 | Disponível em `.md` e `.docx` |
+| Arquitetura técnica v1 | 🔁 Substituída pela v2 | 12/07/2026 | Preservada para histórico |
+| Arquitetura técnica v2 | ✅ Concluído | 14/07/2026 | Placa canônica dual (Mercosul) + `km_hodometro` no consolidado — ver ADRs 001–002 |
+| ADRs 001–003 (`docs/decisoes/`) | ✅ Propostos | 14/07/2026 | Ratificam com o merge do MR da spec 001 em `dev` |
 | Quadro Kanban (ClickUp) | ⏳ Pendente | — | CSV de importação pronto; falta subir no ClickUp |
 | `gerador_dados.py` | ⏳ Não iniciado | — | Próximo passo técnico nº 1 (ver seção 8) |
 
@@ -73,9 +75,11 @@ Entregável formal do primeiro marco da Jornada (prazo 08/07/2026). Contém a re
 **Pendência conhecida:** a tabela de composição da equipe (seção 4) ainda está com campos `[preencher]` — precisa dos dados reais dos integrantes (nome, papel, habilidades, LinkedIn, Instagram) antes de qualquer reenvio ou uso em outro checkpoint.
 
 ### 3.4 Documento técnico de arquitetura
-📄 [`arquitetura_tecnica_desafio13_v1.md`](arquitetura_tecnica_desafio13_v1.md) · também disponível em [`arquitetura_tecnica_desafio13_v1.docx`](arquitetura_tecnica_desafio13_v1.docx)
+📄 **Vigente:** [`arquitetura_tecnica_desafio13_v2.md`](arquitetura_tecnica_desafio13_v2.md) · v1 preservada em [`arquitetura_tecnica_desafio13_v1.md`](arquitetura_tecnica_desafio13_v1.md) (também em `.docx`)
 
-Responde **como** o roadmap será construído. É o documento mais denso do projeto — 11 seções cobrindo a arquitetura em 4 camadas, as 4 fontes de dados simuladas, o pipeline ETL em 3 estágios, o modelo de dados completo (8 tabelas), a lógica do motor de alertas, o desenho do dashboard, 8 decisões arquiteturais formais (D1–D8, com alternativas consideradas), automação via APScheduler, estrutura do repositório e o resumo de conformidade técnica.
+Responde **como** o roadmap será construído. É o documento mais denso do projeto — 12 seções cobrindo a arquitetura em 4 camadas, as 4 fontes de dados simuladas, o pipeline ETL em 3 estágios, o modelo de dados completo (8 tabelas), a lógica do motor de alertas, o desenho do dashboard, 8 decisões arquiteturais formais (D1–D8, com alternativas consideradas), automação via APScheduler, estrutura do repositório, o resumo de conformidade técnica e o histórico de versões.
+
+**Mudanças da v2 (14–15/07/2026):** placa canônica aceita os dois formatos vigentes (antigo `AAA9999` + Mercosul `AAA9A99`); o `ABASTECIMENTO` consolidado persiste `km_hodometro` (série de km para custo/km por período); a `MANUTENCAO` ganha `categoria` preventiva/corretiva (habilita o comparativo 3–5× do pitch). Racional e pesquisa em [`docs/decisoes/ADR-001`](../docs/decisoes/ADR-001-placa-canonica-dois-formatos.md), [`ADR-002`](../docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md) e [`ADR-003`](../docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md).
 
 **Use este documento quando:** precisar decidir stack, entender o esquema do banco, ou justificar uma escolha técnica para a banca.
 
@@ -108,12 +112,12 @@ Como cada exigência do briefing percorre o roadmap, a arquitetura e o Kanban:
 
 | Termo | Definição | Onde aparece |
 |---|---|---|
-| **Placa canônica** | Formato normalizado `AAA9999` (maiúsculas, sem hífen) usado como chave de reconciliação entre todas as fontes | Arquitetura §2, §3.2, D7 |
+| **Placa canônica** | Formato normalizado (maiúsculas, sem hífen), aceitando os dois padrões vigentes — antigo `AAA9999` e Mercosul `AAA9A99` (regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`) — usado como chave de reconciliação entre todas as fontes | Arquitetura v2 §2, D7; ADR-001 |
 | **`LIMIAR_CONFIG`** | Tabela (não constante no código) que parametriza `tipo_veículo × tipo_manutenção × limite_km × limite_dias` — permite alterar um limiar ao vivo na demo | Roadmap Fase 0/2; Arquitetura §4 |
 | **`condutor_pseudo`** | Identificador sintético (`COND-042`) que substitui o nome real do servidor desde a geração dos dados — decisão de conformidade LGPD | Arquitetura §2, §4, D8 |
 | **`fonte_origem`** | Campo presente em toda tabela consolidada que registra de qual carga/fonte veio o dado — materializa a auditabilidade exigida pelo briefing | Arquitetura §4, §10 |
 | **`log_qualidade`** | Tabela que registra todo dado rejeitado no pipeline com o motivo (`placa_invalida`, `data_ausente`, `duplicado`) — evidência do tratamento de inconsistências | Arquitetura §3.1 |
-| **Cenário determinístico** | Veículos pré-posicionados a ~600 km / ~20 dias do limiar, para garantir que o alerta dispare de forma confiável na demo ao vivo | Roadmap Fase 2; Arquitetura §5.2 |
+| **Cenário determinístico** | Veículo A pré-posicionado a ~600 km do limite de km (gatilho ao vivo via CSV) e veículo B com a antecedência de tempo já cruzada (alerta no 1º ciclo do motor), para garantir disparo confiável na demo ao vivo | Roadmap Fase 2; Arquitetura v2 §5.2 |
 | **Staging** | Camada intermediária onde os dados brutos são gravados sem transformação, antes da limpeza — garante rastreabilidade | Arquitetura §1, §3.1 |
 
 ---
@@ -159,6 +163,7 @@ Como cada exigência do briefing percorre o roadmap, a arquitetura e o Kanban:
 
 | Versão | Data | Mudança |
 |---|---|---|
+| v1.1 | 14/07/2026 | Arquitetura v2 registrada (placa dual + `km_hodometro`); ADRs 001–003 adicionados ao status; glossário de placa canônica atualizado |
 | v1 | 13/07/2026 | Criação inicial — índice, mapa de documentos, matriz de rastreabilidade, glossário e marco legal |
 
 *Convenção: ao adicionar um novo documento ao projeto (ex.: `gerador_dados.py`, documentação da API fake, ADRs futuros), atualize a seção 3 com uma nova entrada e a seção 4 se houver rastreabilidade nova a registrar.*

@@ -2,7 +2,7 @@
 
 Este diretório é o esqueleto de especificações do projeto. **Cada pasta contém apenas um `spec.md`**: ele diz *o que* construir e *por quê*. O *como* (plano técnico e tasks) é gerado por quem assumir a spec, usando o fluxo Speckit descrito abaixo.
 
-Documentos de referência: `wiki/arquitetura_tecnica_desafio13_v1.md` (decisões técnicas), `wiki/kanban_tasks_desafio13_frota_municipal.md` (36 tasks por fase) e `.specify/memory/constitution.md` (princípios inegociáveis do projeto, derivados dos critérios de aceite do briefing — todo plano passa pelo gate "Constitution Check").
+Documentos de referência: `wiki/arquitetura_tecnica_desafio13_v2.md` (decisões técnicas — vigente; mudanças da v2 em `docs/decisoes/ADR-001..003`), `wiki/kanban_tasks_desafio13_frota_municipal.md` (36 tasks por fase) e `.specify/memory/constitution.md` (princípios inegociáveis do projeto, derivados dos critérios de aceite do briefing — todo plano passa pelo gate "Constitution Check").
 
 ## Mapa de specs
 

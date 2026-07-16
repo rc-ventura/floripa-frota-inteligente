@@ -29,7 +29,7 @@ quem assumir cada uma. Veja `specs/README.md` para o mapa completo, com dependê
 Documentos de referência, em ordem de desempate se houver conflito:
 
 1. Briefing oficial do desafio (`.docx`, não editar)
-2. `wiki/arquitetura_tecnica_desafio13_v1.md` — decisões técnicas (D1–D8), ERD, pipeline
+2. `wiki/arquitetura_tecnica_desafio13_v2.md` — decisões técnicas (D1–D8), ERD, pipeline (v1 preservada; mudanças da v2 em `docs/decisoes/ADR-001..003`)
 3. `specs/*/spec.md` — o que cada parte precisa entregar
 4. `wiki/kanban_tasks_desafio13_frota_municipal.md` — as 36 tasks originais, por fase
 5. `.specify/memory/constitution.md` — princípios inegociáveis do projeto
@@ -143,7 +143,8 @@ Nenhum dos dois caminhos é obrigatório — misturar também é normal (ex.: um
 Resumo da constitution (`.specify/memory/constitution.md`) — leia o documento completo antes
 de tomar decisões de modelagem ou de escopo:
 
-- **Placa canônica `AAA9999`** (maiúsculas, sem hífen) é a chave de reconciliação entre
+- **Placa canônica** (maiúsculas, sem hífen; formatos antigo `AAA9999` **e** Mercosul
+  `AAA9A99` — regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`, ADR-001) é a chave de reconciliação entre
   todas as fontes; normalize antes de qualquer cruzamento.
 - **Rastreabilidade**: toda tabela consolidada carrega `fonte_origem`; staging carrega
   carimbo de carga; nenhuma rejeição é silenciosa — vai para `log_qualidade` com motivo.

@@ -32,7 +32,7 @@ Como gestor da frota, quero ser alertado quando um veículo se aproxima do limit
 
 Como gestor da frota, quero ser alertado quando faz tempo demais desde a última manutenção de um tipo (com antecedência em dias), para cobrir veículos que rodam pouco mas envelhecem igual.
 
-**Why this priority**: Segundo gatilho obrigatório do briefing (4.3); um dos dois veículos da demo nasce a ~20 dias do limiar.
+**Why this priority**: Segundo gatilho obrigatório do briefing (4.3); um dos dois veículos da demo (veículo B) nasce com a antecedência de tempo já cruzada (166 dias; limiar 165) — o alerta dele aparece no primeiro ciclo do motor, evidenciando este gatilho sem manipulação ao vivo.
 
 **Independent Test**: Popular última manutenção com data conhecida, configurar limite de dias e rodar a verificação.
 
@@ -90,7 +90,7 @@ Como apresentador da demo, preciso que ETL e motor rodem sozinhos em ciclo confi
 ### Edge Cases
 
 - Par (tipo_veiculo, tipo_manutencao) sem limiar em LIMIAR_CONFIG: definição explícita (tratar como não-aplicável e registrar, ou `dados_insuficientes`) — nunca erro que derrube o ciclo.
-- `km_atual` do veículo menor que `km_no_momento` da última manutenção (odômetro inconsistente): km não confiável → `dados_insuficientes`.
+- `km_atual` do veículo menor que `km_no_momento` da última manutenção (odômetro inconsistente): km não confiável → `dados_insuficientes`. A série `km_hodometro` do ABASTECIMENTO consolidado (ADR-002) pode ser usada como evidência adicional de inconsistência (leituras decrescentes).
 - Limiar alterado com alerta ativo existente: alerta ativo não é retroativamente apagado; a próxima verificação usa o novo limiar.
 - Duas condições verdadeiras ao mesmo tempo (km e tempo): dois alertas distintos, um por gatilho.
 - Ciclo do motor coincidindo com ETL em andamento: verificação lê estado consistente (roda após o ETL do ciclo, conforme sequência da arquitetura seção 8).
@@ -130,5 +130,5 @@ Como apresentador da demo, preciso que ETL e motor rodem sozinhos em ciclo confi
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 5, 7-D4 e 8)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 5, 7-D4 e 8)
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 2 t1–t4 e t6)

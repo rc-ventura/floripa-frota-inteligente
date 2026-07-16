@@ -8,6 +8,17 @@ Thumbs.db
 # Ferramentas locais
 .rtk/
 
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
 # Pasta monitorada: recebe arquivos em runtime/demo, não versiona conteúdo
 data/inbox/*
 !data/inbox/.gitkeep
+.coverage
+.pytest_cache/
