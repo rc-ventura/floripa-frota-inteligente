@@ -546,11 +546,13 @@ def gerar_licenciamento(rng: np.random.Generator, veiculos: list[dict], ancora: 
 # ---------------------------------------------------------------------------
 
 def gerar_inconsistencias_md(abastecimento, multas, manutencao, licenciamento, ancora: date) -> str:
-    ex_hifen = next(l["placa"] for l in abastecimento if "-" in l["placa"])
-    ex_data_br = next(l["data"] for l in abastecimento if "/" in l["data"])
-    ex_data_iso = next(l["data"] for l in abastecimento if "-" in l["data"] and "/" not in l["data"])
-    ex_virgula = next(l["litros"] for l in abastecimento if "," in l["litros"])
-    ex_placa_min = multas[0]["placa"]
+    # Defaults defensivos: com SEED/âncora fixos os exemplos sempre existem, mas o
+    # gerador não deve quebrar se uma semente/âncora futura zerar alguma proporção sorteada.
+    ex_hifen = next((l["placa"] for l in abastecimento if "-" in l["placa"]), "N/A")
+    ex_data_br = next((l["data"] for l in abastecimento if "/" in l["data"]), "N/A")
+    ex_data_iso = next((l["data"] for l in abastecimento if "-" in l["data"] and "/" not in l["data"]), "N/A")
+    ex_virgula = next((l["litros"] for l in abastecimento if "," in l["litros"]), "N/A")
+    ex_placa_min = multas[0]["placa"] if multas else "N/A"
     n_km_ausente = sum(1 for e in manutencao if e["km_no_momento"] is None)
     grafias_tipo = sorted({e["tipo"] for e in manutencao})[:6]
     placas_lic = [r["placa"] for r in licenciamento]
@@ -608,23 +610,37 @@ o invariante "demais veículos longe dos limiares, sem alertas espúrios" (ADR-0
 """
 
 
+CORE_XML_DETERMINISTICO = (
+    b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+    b'<cp:coreProperties '
+    b'xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+    b'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+    b'xmlns:dcterms="http://purl.org/dc/terms/" '
+    b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+    b"<dc:creator>openpyxl</dc:creator>"
+    b'<dcterms:created xsi:type="dcterms:W3CDTF">2026-01-01T00:00:00Z</dcterms:created>'
+    b'<dcterms:modified xsi:type="dcterms:W3CDTF">2026-01-01T00:00:00Z</dcterms:modified>'
+    b"</cp:coreProperties>"
+)
+
+
 def _normalizar_zip(caminho: Path) -> None:
     """Reescreve o zip do XLSX com timestamps fixos e entradas ordenadas (determinismo R1).
 
-    O openpyxl sobrescreve `dcterms:modified` com o horário do save — o campo é
-    fixado aqui para que duas execuções produzam bytes idênticos (FR-006/SC-004).
+    O openpyxl sobrescreve `dcterms:modified` com o horário do save a cada execução —
+    e a forma como ele distribui os `xmlns:` entre os elementos de `core.xml` varia por
+    versão/ambiente (às vezes declara `xmlns:xsi` só no elemento `dcterms:created`, o que
+    deixa `dcterms:modified` — um irmão, não um descendente — com um prefixo `xsi:type`
+    sem namespace definido: XML inválido, rejeitado por lxml/pandas/openpyxl na leitura).
+    Por isso `docProps/core.xml` é substituído por um XML fixo e íntegro, controlado por
+    este gerador, em vez de remendado por regex sobre a saída do openpyxl.
     """
-    import re as _re
     with zipfile.ZipFile(caminho) as z:
         itens = [(nome, z.read(nome)) for nome in sorted(z.namelist())]
     with zipfile.ZipFile(caminho, "w", zipfile.ZIP_DEFLATED) as z:
         for nome, dados in itens:
             if nome == "docProps/core.xml":
-                dados = _re.sub(
-                    rb"<dcterms:modified[^>]*>[^<]*</dcterms:modified>",
-                    b'<dcterms:modified xsi:type="dcterms:W3CDTF">2026-01-01T00:00:00Z</dcterms:modified>',
-                    dados,
-                )
+                dados = CORE_XML_DETERMINISTICO
             z.writestr(zipfile.ZipInfo(nome, date_time=(1980, 1, 1, 0, 0, 0)), dados)
 
 
