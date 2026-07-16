@@ -1,5 +1,8 @@
-# Segredos / ambiente (o .env.example versionado virá na spec 007)
+# Segredos / ambiente (.env.example versionado nasce na spec 002; a 007 o estende)
 .env
+
+# Banco local SQLite (spec 002) — nunca versionado
+db/frota.db
 
 # Sistema operacional
 .DS_Store
