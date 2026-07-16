@@ -26,9 +26,9 @@ Biblioteca única em `db/` (arquitetura v2 §9): `db/config.py`, `db/models.py`,
 
 **Purpose**: dependências instaladas e esqueleto do módulo `db/`
 
-- [ ] T001 Adicionar ao `pyproject.toml` as dependências `sqlalchemy>=2.0`, `alembic>=1.13`, `psycopg[binary]>=3.1` (research R9) e rodar `uv sync`
-- [ ] T002 [P] Criar `db/__init__.py` (vazio), `.env.example` na raiz com `DATABASE_URL` comentada (default documentado: `sqlite:///db/frota.db` — arquitetura §9) e regra no `.gitignore` para `db/frota.db` (banco local nunca versionado); no mesmo commit, atualizar o comentário do `.gitignore` que atribuía o `.env.example` à spec 007 (o arquivo nasce aqui; a 007 apenas o estende com o intervalo do ciclo — achado I2)
-- [ ] T003 [P] Criar `tests/test_db.py` com fixtures base: fixture que cria banco SQLite em `tmp_path` (via `DATABASE_URL` monkeypatched) e executa a inicialização programática (`db.init_db.main()`); fixture de sessão SQLAlchemy para asserções
+- [X] T001 Adicionar ao `pyproject.toml` as dependências `sqlalchemy>=2.0`, `alembic>=1.13`, `psycopg[binary]>=3.1` (research R9) e rodar `uv sync`
+- [X] T002 [P] Criar `db/__init__.py` (vazio), `.env.example` na raiz com `DATABASE_URL` comentada (default documentado: `sqlite:///db/frota.db` — arquitetura §9) e regra no `.gitignore` para `db/frota.db` (banco local nunca versionado); no mesmo commit, atualizar o comentário do `.gitignore` que atribuía o `.env.example` à spec 007 (o arquivo nasce aqui; a 007 apenas o estende com o intervalo do ciclo — achado I2)
+- [X] T003 [P] Criar `tests/test_db.py` com fixtures base: fixture que cria banco SQLite em `tmp_path` (via `DATABASE_URL` monkeypatched) e executa a inicialização programática (`db.init_db.main()`); fixture de sessão SQLAlchemy para asserções
 
 **Checkpoint**: `uv sync` verde; `pytest` coleta sem erro
 
@@ -40,9 +40,9 @@ Biblioteca única em `db/` (arquitetura v2 §9): `db/config.py`, `db/models.py`,
 
 **⚠️ CRITICAL**: nenhuma story pode começar antes desta fase terminar
 
-- [ ] T004 Implementar `db/config.py`: `get_engine()`/`get_session()` resolvendo `DATABASE_URL` da env var com default `sqlite:///db/frota.db`, ponto único de conexão para todas as camadas (research R1; contrato §inicialização)
-- [ ] T005 Implementar em `db/models.py` a base declarativa SQLAlchemy 2.x: `Base(DeclarativeBase)` com `naming_convention` para constraints (nomes estáveis p/ Alembic) e a constante exportada `REGEX_PLACA_CANONICA = r"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$"` (ADR-001, research R3)
-- [ ] T006 Criar scaffolding do Alembic em `db/migrations/`: `alembic.ini` (em `db/`), `env.py` importando `db.models.Base.metadata` e `db.config` (URL única), com `render_as_batch=True` para SQLite (research R2)
+- [X] T004 Implementar `db/config.py`: `get_engine()`/`get_session()` resolvendo `DATABASE_URL` da env var com default `sqlite:///db/frota.db`, ponto único de conexão para todas as camadas (research R1; contrato §inicialização)
+- [X] T005 Implementar em `db/models.py` a base declarativa SQLAlchemy 2.x: `Base(DeclarativeBase)` com `naming_convention` para constraints (nomes estáveis p/ Alembic) e a constante exportada `REGEX_PLACA_CANONICA = r"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$"` (ADR-001, research R3)
+- [X] T006 Criar scaffolding do Alembic em `db/migrations/`: `alembic.ini` (em `db/`), `env.py` importando `db.models.Base.metadata` e `db.config` (URL única), com `render_as_batch=True` para SQLite (research R2)
 
 **Checkpoint**: `alembic -c db/alembic.ini current` roda sem erro em banco vazio
 
@@ -56,18 +56,18 @@ Biblioteca única em `db/` (arquitetura v2 §9): `db/config.py`, `db/models.py`,
 
 ### Tests for User Story 1 (escrever primeiro — devem falhar)
 
-- [ ] T007 [US1] Escrever `test_criacao_do_zero` em `tests/test_db.py`: após 1 execução existem as 12 tabelas (`veiculo`, `abastecimento`, `manutencao`, `multa`, `licenciamento`, `limiar_config`, `alerta`, 4×`stg_*`, `log_qualidade`) + `alembic_version`; colunas-chave presentes (`km_hodometro`, `categoria`, `fonte_origem`, `detalhe`) (FR-001..FR-003)
-- [ ] T008 [US1] Escrever `test_placa_e_relacionamentos` em `tests/test_db.py`: inserir veículo com placa antiga (`ABC1234`) e Mercosul (`ABC1D23`) → OK; placa fora do canônico (`AB1234`, `abc1234`) → `ValueError` do `@validates`; evento com placa inexistente → falha de FK; CHECKs de vocabulário rejeitam `tipo`/`categoria`/`situacao` inválidos (US1 cenário 2)
-- [ ] T009 [US1] Escrever `test_alerta_ativo_unico` em `tests/test_db.py`: 2º alerta ativo idêntico (placa, gatilho, limiar) → `IntegrityError` (índice `ux_alerta_ativo`); resolver o 1º e inserir novo ativo → OK (recorrência não bloqueada); `dados_insuficientes` com `limiar_id` NULL respeita a mesma regra via `coalesce` (research R6, FR-005)
+- [X] T007 [US1] Escrever `test_criacao_do_zero` em `tests/test_db.py`: após 1 execução existem as 12 tabelas (`veiculo`, `abastecimento`, `manutencao`, `multa`, `licenciamento`, `limiar_config`, `alerta`, 4×`stg_*`, `log_qualidade`) + `alembic_version`; colunas-chave presentes (`km_hodometro`, `categoria`, `fonte_origem`, `detalhe`) (FR-001..FR-003)
+- [X] T008 [US1] Escrever `test_placa_e_relacionamentos` em `tests/test_db.py`: inserir veículo com placa antiga (`ABC1234`) e Mercosul (`ABC1D23`) → OK; placa fora do canônico (`AB1234`, `abc1234`) → `ValueError` do `@validates`; evento com placa inexistente → falha de FK; CHECKs de vocabulário rejeitam `tipo`/`categoria`/`situacao` inválidos (US1 cenário 2)
+- [X] T009 [US1] Escrever `test_alerta_ativo_unico` em `tests/test_db.py`: 2º alerta ativo idêntico (placa, gatilho, limiar) → `IntegrityError` (índice `ux_alerta_ativo`); resolver o 1º e inserir novo ativo → OK (recorrência não bloqueada); `dados_insuficientes` com `limiar_id` NULL respeita a mesma regra via `coalesce` (research R6, FR-005)
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implementar em `db/models.py` as consolidadas de domínio: `Veiculo` (placa PK + CHECK length + `@validates` com `REGEX_PLACA_CANONICA`, `km_atual`, `fonte_origem` — research R8), `Abastecimento` (`km_hodometro` nullable + UNIQUE `(placa, data, km_hodometro)` — ADR-002), `Manutencao` (`tipo` + `categoria` com CHECKs + UNIQUE `(placa, data, tipo)` — ADR-003), `Multa` (sem cnh/gravidade — minimização estrutural; UNIQUE pragmática), `Licenciamento` (placa PK/FK 1:1) — conforme data-model §1
-- [ ] T011 [US1] Implementar em `db/models.py` `LimiarConfig` (UNIQUE `(tipo_veiculo, tipo_manutencao)`) e `Alerta` (`limiar_id` FK nullable, `tipo_gatilho` CHECK, `situacao` default `ativo`, `detalhe`, índice único parcial `ux_alerta_ativo` sobre `(placa, tipo_gatilho, coalesce(limiar_id,-1))` WHERE `situacao='ativo'` — research R6)
-- [ ] T012 [US1] Implementar em `db/models.py` as 4 staging (`StgAbastecimento`, `StgMultas` com `cnh` bruta, `StgManutencao` com `aba_origem`, `StgLicenciamento`) — tudo TEXT nullable + `carga_em`/`fonte_origem` NOT NULL — e `LogQualidade` (data-model §2–3, research R5)
-- [ ] T013 [US1] Declarar em `db/models.py` os 5 índices de consulta do data-model §4 (`ix_abastecimento_placa_data`, `ix_manutencao_placa_tipo_data`, `ix_multa_placa_data`, `ix_alerta_situacao`, `ix_licenciamento_vencimento`)
-- [ ] T014 [US1] Gerar a migration inicial `db/migrations/versions/0001_esquema_inicial.py` (autogenerate a partir dos modelos + revisão manual: índice parcial com `postgresql_where`/`sqlite_where` e expressão `coalesce` precisam de ajuste manual — research R2/R6)
-- [ ] T015 [US1] Implementar `db/init_db.py` (executável via `python -m db.init_db`): roda `alembic upgrade head` programaticamente com a URL de `db/config.py` e chama o seed (no-op até a US2); imprime resumo (tabelas criadas, ambiente) (FR-007, contrato §inicialização)
+- [X] T010 [US1] Implementar em `db/models.py` as consolidadas de domínio: `Veiculo` (placa PK + CHECK length + `@validates` com `REGEX_PLACA_CANONICA`, `km_atual`, `fonte_origem` — research R8), `Abastecimento` (`km_hodometro` nullable + UNIQUE `(placa, data, km_hodometro)` — ADR-002), `Manutencao` (`tipo` + `categoria` com CHECKs + UNIQUE `(placa, data, tipo)` — ADR-003), `Multa` (sem cnh/gravidade — minimização estrutural; UNIQUE pragmática), `Licenciamento` (placa PK/FK 1:1) — conforme data-model §1
+- [X] T011 [US1] Implementar em `db/models.py` `LimiarConfig` (UNIQUE `(tipo_veiculo, tipo_manutencao)`) e `Alerta` (`limiar_id` FK nullable, `tipo_gatilho` CHECK, `situacao` default `ativo`, `detalhe`, índice único parcial `ux_alerta_ativo` sobre `(placa, tipo_gatilho, coalesce(limiar_id,-1))` WHERE `situacao='ativo'` — research R6)
+- [X] T012 [US1] Implementar em `db/models.py` as 4 staging (`StgAbastecimento`, `StgMultas` com `cnh` bruta, `StgManutencao` com `aba_origem`, `StgLicenciamento`) — tudo TEXT nullable + `carga_em`/`fonte_origem` NOT NULL — e `LogQualidade` (data-model §2–3, research R5)
+- [X] T013 [US1] Declarar em `db/models.py` os 5 índices de consulta do data-model §4 (`ix_abastecimento_placa_data`, `ix_manutencao_placa_tipo_data`, `ix_multa_placa_data`, `ix_alerta_situacao`, `ix_licenciamento_vencimento`)
+- [X] T014 [US1] Gerar a migration inicial `db/migrations/versions/0001_esquema_inicial.py` (autogenerate a partir dos modelos + revisão manual: índice parcial com `postgresql_where`/`sqlite_where` e expressão `coalesce` precisam de ajuste manual — research R2/R6)
+- [X] T015 [US1] Implementar `db/init_db.py` (executável via `python -m db.init_db`): roda `alembic upgrade head` programaticamente com a URL de `db/config.py` e chama o seed (no-op até a US2); imprime resumo (tabelas criadas, ambiente) (FR-007, contrato §inicialização)
 
 **Checkpoint**: T007–T009 verdes; `python -m db.init_db` 2× seguidas sem erro (SC-004)
 
@@ -81,13 +81,13 @@ Biblioteca única em `db/` (arquitetura v2 §9): `db/config.py`, `db/models.py`,
 
 ### Tests for User Story 2 (escrever primeiro — devem falhar)
 
-- [ ] T016 [US2] Escrever `test_seed_limiares` em `tests/test_db.py`: após init, `limiar_config` tem exatamente as 9 linhas de `data/seeds/limiares_semente.json` (comparação campo a campo); re-init não duplica nem altera (FR-004, quickstart C3); consulta por par inexistente (ex.: `ambulancia`/`pneus`) retorna vazio — ausência detectável, sem default silencioso (edge case da spec; achado U2)
-- [ ] T017 [US2] Escrever `test_limiar_runtime` em `tests/test_db.py`: UPDATE de `limite_km` via sessão → nova leitura em outra sessão vê o valor sem reinicialização; re-executar o seed NÃO sobrescreve a edição; com `--sobrescrever`, o valor do JSON volta a valer (SC-002, research R4). Nota: este teste é o *proxy* do SC-002 — a verificação plena ("próxima verificação do motor") é assumida pela spec 004, que herda do contrato a proibição de cache de processo (achado C1 do speckit-analyze)
+- [X] T016 [US2] Escrever `test_seed_limiares` em `tests/test_db.py`: após init, `limiar_config` tem exatamente as 9 linhas de `data/seeds/limiares_semente.json` (comparação campo a campo); re-init não duplica nem altera (FR-004, quickstart C3); consulta por par inexistente (ex.: `ambulancia`/`pneus`) retorna vazio — ausência detectável, sem default silencioso (edge case da spec; achado U2)
+- [X] T017 [US2] Escrever `test_limiar_runtime` em `tests/test_db.py`: UPDATE de `limite_km` via sessão → nova leitura em outra sessão vê o valor sem reinicialização; re-executar o seed NÃO sobrescreve a edição; com `--sobrescrever`, o valor do JSON volta a valer (SC-002, research R4). Nota: este teste é o *proxy* do SC-002 — a verificação plena ("próxima verificação do motor") é assumida pela spec 004, que herda do contrato a proibição de cache de processo (achado C1 do speckit-analyze)
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implementar `db/seed_limiares.py`: lê `data/seeds/limiares_semente.json` (caminho resolvido da raiz do repo), upsert por `(tipo_veiculo, tipo_manutencao)` — insere ausentes, nunca sobrescreve existentes por padrão (research R4); executável isolado (`python -m db.seed_limiares`) com flag opcional `--sobrescrever` para recalibração deliberada (JSON alterado → banco existente adota os novos valores; achado U1 do speckit-analyze)
-- [ ] T019 [US2] Integrar o seed ao `db/init_db.py` (ordem: upgrade → seed) e documentar no help do CLI que par (tipo_veiculo, tipo_manutencao) ausente é "não-avaliável" para o motor — sem default silencioso (edge case da spec)
+- [X] T018 [US2] Implementar `db/seed_limiares.py`: lê `data/seeds/limiares_semente.json` (caminho resolvido da raiz do repo), upsert por `(tipo_veiculo, tipo_manutencao)` — insere ausentes, nunca sobrescreve existentes por padrão (research R4); executável isolado (`python -m db.seed_limiares`) com flag opcional `--sobrescrever` para recalibração deliberada (JSON alterado → banco existente adota os novos valores; achado U1 do speckit-analyze)
+- [X] T019 [US2] Integrar o seed ao `db/init_db.py` (ordem: upgrade → seed) e documentar no help do CLI que par (tipo_veiculo, tipo_manutencao) ausente é "não-avaliável" para o motor — sem default silencioso (edge case da spec)
 
 **Checkpoint**: T016–T017 verdes; demo do limiar ao vivo ensaiável via quickstart C4
 
@@ -101,11 +101,11 @@ Biblioteca única em `db/` (arquitetura v2 §9): `db/config.py`, `db/models.py`,
 
 ### Tests for User Story 3 (escrever primeiro — devem falhar)
 
-- [ ] T020 [US3] Escrever `test_rastreabilidade_lgpd` em `tests/test_db.py` (introspecção via SQLAlchemy `inspect()`): `fonte_origem` em 100% das consolidadas (incluindo `veiculo`); `carga_em`+`fonte_origem` em 100% das `stg_*`; nenhuma coluna `nome`/`cpf`/`matricula`/`cnh` em consolidadas/`alerta`/`limiar_config`; nenhuma tabela com "condutor" no nome (de-para inexistente) (FR-006, SC-003)
+- [X] T020 [US3] Escrever `test_rastreabilidade_lgpd` em `tests/test_db.py` (introspecção via SQLAlchemy `inspect()`): `fonte_origem` em 100% das consolidadas (incluindo `veiculo`); `carga_em`+`fonte_origem` em 100% das `stg_*`; nenhuma coluna `nome`/`cpf`/`matricula`/`cnh` em consolidadas/`alerta`/`limiar_config`; nenhuma tabela com "condutor" no nome (de-para inexistente) (FR-006, SC-003)
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Revisar/ajustar `db/models.py` (e regenerar a migration se necessário) até T020 passar — em particular `fonte_origem` no `Veiculo` (research R8) e a ausência estrutural de `cnh`/`gravidade` em `Multa`
+- [X] T021 [US3] Revisar/ajustar `db/models.py` (e regenerar a migration se necessário) até T020 passar — em particular `fonte_origem` no `Veiculo` (research R8) e a ausência estrutural de `cnh`/`gravidade` em `Multa`
 
 **Checkpoint**: as 3 stories verdes de forma independente
 
@@ -115,10 +115,10 @@ Biblioteca única em `db/` (arquitetura v2 §9): `db/config.py`, `db/models.py`,
 
 **Purpose**: validação nos dois ambientes, critérios de tempo e sincronização de docs
 
-- [ ] T022 [P] Validar o quickstart Cenário 5 (PostgreSQL 16 via Docker): `DATABASE_URL=postgresql+psycopg://... python -m db.init_db` 2× — mesmas tabelas/constraints, índice parcial funcional; registrar o resultado na descrição do MR (D2, SC-001)
-- [ ] T023 Medir SC-001 (`time python -m db.init_db` < 1 min em banco limpo, SQLite e Postgres) e SC-004 (execução dupla sem erro/perda — inserir 1 registro entre as execuções e conferir sobrevivência)
-- [ ] T024 Validar `specs/002-modelo-dados-banco/quickstart.md` de ponta a ponta (Cenários 1–7) e corrigir divergências de docs/comandos encontradas
-- [ ] T025 [P] Sincronizar `specs/002-modelo-dados-banco/contracts/esquema_tabelas.md` com qualquer ajuste feito durante a implementação (contrato é consumido pelas specs 003/004/005/006 — regra de estabilidade do próprio contrato)
+- [X] T022 [P] Validar o quickstart Cenário 5 (PostgreSQL 16 via Docker): `DATABASE_URL=postgresql+psycopg://... python -m db.init_db` 2× — mesmas tabelas/constraints, índice parcial funcional; registrar o resultado na descrição do MR (D2, SC-001)
+- [X] T023 Medir SC-001 (`time python -m db.init_db` < 1 min em banco limpo, SQLite e Postgres) e SC-004 (execução dupla sem erro/perda — inserir 1 registro entre as execuções e conferir sobrevivência)
+- [X] T024 Validar `specs/002-modelo-dados-banco/quickstart.md` de ponta a ponta (Cenários 1–7) e corrigir divergências de docs/comandos encontradas
+- [X] T025 [P] Sincronizar `specs/002-modelo-dados-banco/contracts/esquema_tabelas.md` com qualquer ajuste feito durante a implementação (contrato é consumido pelas specs 003/004/005/006 — regra de estabilidade do próprio contrato)
 
 ---
 

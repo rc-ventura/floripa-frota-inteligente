@@ -17,7 +17,7 @@ python -m db.init_db        # alembic upgrade head + seed da LIMIAR_CONFIG (idem
 | Idempotente | Rodar N vezes → mesmo estado, sem erro nem perda de dados (SC-004) |
 | Ambiente | `DATABASE_URL` (env var); default `sqlite:///db/frota.db`; demo usa PostgreSQL 16 — mesmo comando, mesmo esquema (SC-001) |
 | Seed | `limiar_config` semeada de `data/seeds/limiares_semente.json` (fonte única); upsert por `(tipo_veiculo, tipo_manutencao)` que NÃO sobrescreve valores existentes (edições ao vivo sobrevivem a re-init). Recalibração deliberada: `python -m db.seed_limiares --sobrescrever` adota os valores do JSON num banco existente |
-| Acesso | Componentes obtêm engine/sessão via `db.config.get_engine()` / `get_session()` — nunca criam URL própria |
+| Acesso | Componentes obtêm engine/sessão via `db.config.get_engine()` / `get_session()` — nunca criam URL própria. Em SQLite, é essa engine que liga `PRAGMA foreign_keys=ON` (FKs NÃO são impostas por conexões criadas fora de `db.config`) |
 
 ## O que cada spec pode assumir
 

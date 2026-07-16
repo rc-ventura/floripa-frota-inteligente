@@ -8,7 +8,10 @@ Guia de validação executável dos critérios SC-001..SC-004 e FR-001..FR-007. 
 ## Pré-requisitos
 
 - Python 3.12+ e `uv` (dependências: `uv sync` — inclui sqlalchemy, alembic, psycopg).
+- Comandos `python ...` abaixo assumem o venv ativo (`source .venv/bin/activate`);
+  alternativamente, prefixe com `uv run`.
 - Para o Cenário 5 (Postgres): Docker (`docker run postgres:16`) ou o compose da spec 007.
+  Se a porta 5432 já estiver em uso na máquina, mapeie outra (ex.: `-p 5434:5432`) e ajuste a URL.
 - Repositório na branch `feature/002-modelo-dados-banco`.
 
 ---
