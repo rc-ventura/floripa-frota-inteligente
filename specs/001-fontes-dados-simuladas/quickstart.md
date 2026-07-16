@@ -58,7 +58,7 @@ ls -la fake_api/multas.json  # confirma o payload da API
 # Rodar o gerador 2x em diretórios temporários e comparar checksums
 python data/gerador_dados.py --output /tmp/run1
 python data/gerador_dados.py --output /tmp/run2
-sha256sum /tmp/run1/data/seeds/* /tmp/run2/data/seeds/*  # checksums idênticos por arquivo
+shasum -a 256 /tmp/run1/data/seeds/* /tmp/run2/data/seeds/*  # checksums idênticos por arquivo (macOS/Linux)
 ```
 
 **Resultado esperado**: os checksums SHA-256 de cada arquivo correspondente são idênticos
@@ -86,7 +86,7 @@ extraído dos dados gerados. Confirmação item a item:
 |---|---|---|
 | Abastecimento CSV | placas com/sem hífen | `cut -d, -f1 data/seeds/abastecimento.csv \| sort -u` mostra ambas as grafias |
 | Abastecimento CSV | datas em 2 formatos | `cut -d, -f2 data/seeds/abastecimento.csv` mostra `dd/mm/aaaa` e `aaaa-mm-dd` |
-| Abastecimento CSV | vírgula decimal | `cut -d, -f3 data/seeds/abastecimento.csv` mostra `45,5` |
+| Abastecimento CSV | vírgula decimal | `python -c "import pandas as pd; print(pd.read_csv('data/seeds/abastecimento.csv', dtype=str)['litros'].head())"` mostra `45,5` (campo vem entre aspas no CSV — `cut` não separa corretamente) |
 | Multas JSON | placas em minúsculas | `jq '.[].placa' fake_api/multas.json` mostra `abc1d23` |
 | Multas JSON | campo `cnh` sintético | `jq '.[].cnh' fake_api/multas.json` mostra 11 dígitos |
 | Multas JSON | valores tabelados CTB | `jq '[.[].valor] \| unique' fake_api/multas.json` só contém 88.38/130.16/195.23/293.47 (e multiplicadores) |
@@ -141,6 +141,12 @@ eleva o `km_atual` do veículo A para ≥ 4501 (cruzando o limiar de antecedênc
 depositado em `data/inbox/` e ingerido pelo pipeline (spec 003), o motor (spec 004) dispara
 o alerta de `troca_oleo` por km — **antes do vencimento** (limite 5000), satisfazendo a
 métrica binária de sucesso do briefing.
+
+> **Data-âncora (importante para o dia da demo)**: todas as datas relativas derivam de
+> `--data-ancora` (default `2026-07-15`; ver research R1). Antes da apresentação, regenere
+> os seeds com a âncora do dia (`python data/gerador_dados.py --data-ancora AAAA-MM-DD`) —
+> senão o veículo B (166 dias na geração) pode estourar o limite de 180 dias e os
+> licenciamentos "vencendo em ≤7 dias" já terão vencido.
 
 **Verificação automatizada**:
 ```bash

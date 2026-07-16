@@ -20,6 +20,16 @@ Todas as ambiguidades funcionais foram resolvidas na sessão de clarificação (
  a ordem das chamadas não afeta o resultado final de forma não-controlada — qualquer função
  que precise de aleatoriedade recebe o `rng` como argumento.
 
+**Data-âncora** *(complemento 2026-07-15 — achado U3 do speckit-analyze)*: além da semente,
+ a segunda entrada explícita do gerador é `DATA_ANCORA` (CLI `--data-ancora`, ISO, default
+ `2026-07-15`). TODA data relativa deriva dela: `dias_desde_ultima` do veículo B (âncora −
+ 166 dias), vencimentos de licenciamento ("vencendo em ≤7 dias" = ≤ âncora+7), e a janela de
+ 8 meses de histórico (âncora − 8 meses → âncora). Nunca `datetime.now()`. Determinismo:
+ mesmas entradas (semente + âncora) → mesmos bytes. **Operacional**: o roteiro da demo
+ (spec 007) regenera os seeds com `--data-ancora <dia da apresentação>` — sem isso, um
+ dataset gerado semanas antes faria o veículo B estourar o limite de 180 dias (viraria
+ vencido, não preventivo) e os licenciamentos "vencendo" já teriam vencido.
+
 **Alternativas consideradas**:
 - `random.seed(42)` + `random.*`: rejeitado — `random` do stdlib é global e frágil (qualquer
   biblioteca terceira que chame `random` desloca o estado).

@@ -1,0 +1,686 @@
+[
+  {
+    "placa": "RLL8062",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Saveiro",
+    "ano": 2021,
+    "em_garantia": false,
+    "secretaria": "Administração",
+    "km_mes": 1500,
+    "km_atual": 54000,
+    "demo_gatilho": true,
+    "demo_gatilho_tipo": "km",
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-007",
+      "COND-014",
+      "COND-021"
+    ]
+  },
+  {
+    "placa": "TND8453",
+    "tipo_veiculo": "leve",
+    "modelo": "Renault Kwid",
+    "ano": 2020,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 450,
+    "km_atual": 33600,
+    "demo_gatilho": true,
+    "demo_gatilho_tipo": "tempo",
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-006",
+      "COND-052",
+      "COND-059"
+    ]
+  },
+  {
+    "placa": "OLL2058",
+    "tipo_veiculo": "leve",
+    "modelo": "Renault Kwid",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Administração",
+    "km_mes": 1900,
+    "km_atual": 145835,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": true,
+    "condutores": [
+      "COND-003",
+      "COND-010",
+      "COND-056"
+    ]
+  },
+  {
+    "placa": "VET7J09",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Saveiro",
+    "ano": 2024,
+    "em_garantia": true,
+    "secretaria": "Meio Ambiente",
+    "km_mes": 1893,
+    "km_atual": 41618,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-060"
+    ]
+  },
+  {
+    "placa": "MBO1T69",
+    "tipo_veiculo": "leve",
+    "modelo": "Renault Kwid",
+    "ano": 2025,
+    "em_garantia": true,
+    "secretaria": "Assistência Social",
+    "km_mes": 1366,
+    "km_atual": 11549,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-050"
+    ]
+  },
+  {
+    "placa": "JUE4D64",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Gol",
+    "ano": 2024,
+    "em_garantia": true,
+    "secretaria": "Obras",
+    "km_mes": 1226,
+    "km_atual": 21893,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-048",
+      "COND-055"
+    ]
+  },
+  {
+    "placa": "QSC3784",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Onix",
+    "ano": 2026,
+    "em_garantia": true,
+    "secretaria": "Educação",
+    "km_mes": 1841,
+    "km_atual": 26205,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-040",
+      "COND-047"
+    ]
+  },
+  {
+    "placa": "RVF8A77",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Gol",
+    "ano": 2026,
+    "em_garantia": true,
+    "secretaria": "Educação",
+    "km_mes": 1664,
+    "km_atual": 26087,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-048",
+      "COND-055"
+    ]
+  },
+  {
+    "placa": "NOA1G14",
+    "tipo_veiculo": "leve",
+    "modelo": "Fiat Strada",
+    "ano": 2025,
+    "em_garantia": true,
+    "secretaria": "Educação",
+    "km_mes": 1654,
+    "km_atual": 27149,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-010",
+      "COND-017",
+      "COND-024"
+    ]
+  },
+  {
+    "placa": "TOO0O73",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Montana",
+    "ano": 2025,
+    "em_garantia": true,
+    "secretaria": "Educação",
+    "km_mes": 1030,
+    "km_atual": 14785,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-034",
+      "COND-041",
+      "COND-048"
+    ]
+  },
+  {
+    "placa": "ZWA2V08",
+    "tipo_veiculo": "leve",
+    "modelo": "Fiat Strada",
+    "ano": 2017,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 1917,
+    "km_atual": 162492,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-032"
+    ]
+  },
+  {
+    "placa": "OZR4448",
+    "tipo_veiculo": "leve",
+    "modelo": "Fiat Strada",
+    "ano": 2017,
+    "em_garantia": false,
+    "secretaria": "Educação",
+    "km_mes": 1166,
+    "km_atual": 96899,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-007",
+      "COND-053",
+      "COND-060"
+    ]
+  },
+  {
+    "placa": "SMS1959",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Onix",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Meio Ambiente",
+    "km_mes": 1497,
+    "km_atual": 132896,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-029",
+      "COND-036",
+      "COND-043"
+    ]
+  },
+  {
+    "placa": "JRQ6J90",
+    "tipo_veiculo": "leve",
+    "modelo": "Renault Kwid",
+    "ano": 2017,
+    "em_garantia": false,
+    "secretaria": "Educação",
+    "km_mes": 1118,
+    "km_atual": 100118,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-025",
+      "COND-032",
+      "COND-039"
+    ]
+  },
+  {
+    "placa": "LGT9G72",
+    "tipo_veiculo": "leve",
+    "modelo": "Fiat Strada",
+    "ano": 2020,
+    "em_garantia": false,
+    "secretaria": "Educação",
+    "km_mes": 1789,
+    "km_atual": 96302,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-040",
+      "COND-047",
+      "COND-054"
+    ]
+  },
+  {
+    "placa": "CDL7273",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Onix",
+    "ano": 2021,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 1579,
+    "km_atual": 83311,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-017"
+    ]
+  },
+  {
+    "placa": "MSR4361",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Saveiro",
+    "ano": 2019,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 1094,
+    "km_atual": 58366,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-010"
+    ]
+  },
+  {
+    "placa": "KEM1I61",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Gol",
+    "ano": 2020,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 1103,
+    "km_atual": 63323,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-030",
+      "COND-037"
+    ]
+  },
+  {
+    "placa": "ZPL3652",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Montana",
+    "ano": 2015,
+    "em_garantia": false,
+    "secretaria": "Assistência Social",
+    "km_mes": 1151,
+    "km_atual": 126452,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-027"
+    ]
+  },
+  {
+    "placa": "UHM6M49",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Montana",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 1571,
+    "km_atual": 131981,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-015",
+      "COND-022"
+    ]
+  },
+  {
+    "placa": "ONW4H03",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Spin",
+    "ano": 2021,
+    "em_garantia": false,
+    "secretaria": "Assistência Social",
+    "km_mes": 1009,
+    "km_atual": 50173,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-024",
+      "COND-031"
+    ]
+  },
+  {
+    "placa": "ORR1H26",
+    "tipo_veiculo": "leve",
+    "modelo": "Volkswagen Saveiro",
+    "ano": 2020,
+    "em_garantia": false,
+    "secretaria": "Assistência Social",
+    "km_mes": 1726,
+    "km_atual": 88140,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-023",
+      "COND-030"
+    ]
+  },
+  {
+    "placa": "ZFG0155",
+    "tipo_veiculo": "leve",
+    "modelo": "Renault Kwid",
+    "ano": 2017,
+    "em_garantia": false,
+    "secretaria": "Meio Ambiente",
+    "km_mes": 1309,
+    "km_atual": 91507,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-021",
+      "COND-028",
+      "COND-035"
+    ]
+  },
+  {
+    "placa": "IQH6592",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Onix",
+    "ano": 2022,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 1936,
+    "km_atual": 81854,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-024",
+      "COND-031"
+    ]
+  },
+  {
+    "placa": "ZZD8C78",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Montana",
+    "ano": 2022,
+    "em_garantia": false,
+    "secretaria": "Assistência Social",
+    "km_mes": 1223,
+    "km_atual": 41973,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-043"
+    ]
+  },
+  {
+    "placa": "IIR4380",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Onix",
+    "ano": 2020,
+    "em_garantia": false,
+    "secretaria": "Educação",
+    "km_mes": 1746,
+    "km_atual": 96282,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-019"
+    ]
+  },
+  {
+    "placa": "ADB8X17",
+    "tipo_veiculo": "leve",
+    "modelo": "Fiat Strada",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 1367,
+    "km_atual": 136824,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-005",
+      "COND-012",
+      "COND-058"
+    ]
+  },
+  {
+    "placa": "FZU3Z45",
+    "tipo_veiculo": "leve",
+    "modelo": "Fiat Strada",
+    "ano": 2018,
+    "em_garantia": false,
+    "secretaria": "Assistência Social",
+    "km_mes": 1143,
+    "km_atual": 78225,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-003",
+      "COND-010",
+      "COND-056"
+    ]
+  },
+  {
+    "placa": "ARZ1H59",
+    "tipo_veiculo": "leve",
+    "modelo": "Renault Kwid",
+    "ano": 2020,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 1766,
+    "km_atual": 103670,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-030",
+      "COND-037",
+      "COND-044"
+    ]
+  },
+  {
+    "placa": "UCT8141",
+    "tipo_veiculo": "leve",
+    "modelo": "Chevrolet Spin",
+    "ano": 2019,
+    "em_garantia": false,
+    "secretaria": "Administração",
+    "km_mes": 1927,
+    "km_atual": 102874,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-021",
+      "COND-028",
+      "COND-035"
+    ]
+  },
+  {
+    "placa": "NRI9N29",
+    "tipo_veiculo": "ambulancia",
+    "modelo": "Renault Master",
+    "ano": 2026,
+    "em_garantia": true,
+    "secretaria": "Saúde",
+    "km_mes": 2748,
+    "km_atual": 35140,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-034",
+      "COND-041"
+    ]
+  },
+  {
+    "placa": "VCS1T40",
+    "tipo_veiculo": "ambulancia",
+    "modelo": "Fiat Ducato",
+    "ano": 2026,
+    "em_garantia": true,
+    "secretaria": "Saúde",
+    "km_mes": 2248,
+    "km_atual": 24823,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-006",
+      "COND-052",
+      "COND-059"
+    ]
+  },
+  {
+    "placa": "LMQ7806",
+    "tipo_veiculo": "ambulancia",
+    "modelo": "Fiat Ducato",
+    "ano": 2015,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 2431,
+    "km_atual": 193719,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-041",
+      "COND-048"
+    ]
+  },
+  {
+    "placa": "INT6Y87",
+    "tipo_veiculo": "ambulancia",
+    "modelo": "Renault Master",
+    "ano": 2019,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 2434,
+    "km_atual": 173300,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-050"
+    ]
+  },
+  {
+    "placa": "CQZ8H45",
+    "tipo_veiculo": "ambulancia",
+    "modelo": "Renault Master",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 2403,
+    "km_atual": 212684,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-033",
+      "COND-040"
+    ]
+  },
+  {
+    "placa": "YCW0453",
+    "tipo_veiculo": "ambulancia",
+    "modelo": "Fiat Ducato",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Saúde",
+    "km_mes": 2288,
+    "km_atual": 189605,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-039",
+      "COND-046",
+      "COND-053"
+    ]
+  },
+  {
+    "placa": "XXP1E25",
+    "tipo_veiculo": "caminhao",
+    "modelo": "Mercedes-Benz Accelo",
+    "ano": 2023,
+    "em_garantia": true,
+    "secretaria": "Obras",
+    "km_mes": 1955,
+    "km_atual": 66078,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-019"
+    ]
+  },
+  {
+    "placa": "BVB4P56",
+    "tipo_veiculo": "caminhao",
+    "modelo": "Volkswagen Delivery",
+    "ano": 2021,
+    "em_garantia": false,
+    "secretaria": "Meio Ambiente",
+    "km_mes": 1893,
+    "km_atual": 102120,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-046"
+    ]
+  },
+  {
+    "placa": "UWN0418",
+    "tipo_veiculo": "caminhao",
+    "modelo": "Mercedes-Benz Accelo",
+    "ano": 2016,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 1728,
+    "km_atual": 142077,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-014"
+    ]
+  },
+  {
+    "placa": "KAJ9N81",
+    "tipo_veiculo": "caminhao",
+    "modelo": "Volkswagen Delivery",
+    "ano": 2015,
+    "em_garantia": false,
+    "secretaria": "Obras",
+    "km_mes": 2333,
+    "km_atual": 194605,
+    "demo_gatilho": false,
+    "demo_gatilho_tipo": null,
+    "custo_desproporcional": false,
+    "condutores": [
+      "COND-043",
+      "COND-050"
+    ]
+  }
+]

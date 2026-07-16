@@ -1,0 +1,1002 @@
+[
+  {
+    "placa": "oll2058",
+    "data": "2025-11-16",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "xxp1e25",
+    "data": "2025-11-18",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2025-11-21",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2025-11-22",
+    "gravidade": "gravissima",
+    "valor": 293.47,
+    "condutor": "COND-006",
+    "cnh": "54159124799",
+    "situacao": "pendente",
+    "codigo_infracao": "5169-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2025-11-22",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-043",
+    "cnh": "57466780724",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "uct8141",
+    "data": "2025-11-23",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-028",
+    "cnh": "30603150050",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2025-11-25",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "cqz8h45",
+    "data": "2025-11-26",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-033",
+    "cnh": "13027874652",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2025-12-06",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "jrq6j90",
+    "data": "2025-12-06",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-025",
+    "cnh": "57613620311",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "zwa2v08",
+    "data": "2025-12-10",
+    "gravidade": "gravissima",
+    "valor": 293.47,
+    "condutor": "COND-032",
+    "cnh": "73124119214",
+    "situacao": "paga",
+    "codigo_infracao": "5169-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2025-12-14",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-036",
+    "cnh": "27654989692",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "zwa2v08",
+    "data": "2025-12-15",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-032",
+    "cnh": "73124119214",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2025-12-19",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "jue4d64",
+    "data": "2025-12-19",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-055",
+    "cnh": "00461486781",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2025-12-21",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2025-12-25",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-029",
+    "cnh": "39641917376",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2025-12-26",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-003",
+    "cnh": "95647060117",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "adb8x17",
+    "data": "2025-12-26",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-005",
+    "cnh": "13515253965",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "bvb4p56",
+    "data": "2025-12-28",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-046",
+    "cnh": "81121753557",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "xxp1e25",
+    "data": "2026-01-03",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-01-07",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-01-09",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-006",
+    "cnh": "54159124799",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-01-12",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "adb8x17",
+    "data": "2026-01-15",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-058",
+    "cnh": "37466412912",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-02-03",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "ozr4448",
+    "data": "2026-02-03",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-007",
+    "cnh": "52708906017",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-02-05",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-006",
+    "cnh": "54159124799",
+    "situacao": "pendente",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "xxp1e25",
+    "data": "2026-02-07",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-02-09",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "bvb4p56",
+    "data": "2026-02-12",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-046",
+    "cnh": "81121753557",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-02-14",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-003",
+    "cnh": "95647060117",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "jue4d64",
+    "data": "2026-02-17",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-048",
+    "cnh": "83182224195",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "noa1g14",
+    "data": "2026-02-17",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-017",
+    "cnh": "08022918211",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "xxp1e25",
+    "data": "2026-02-19",
+    "gravidade": "gravissima",
+    "valor": 293.47,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "paga",
+    "codigo_infracao": "5169-1"
+  },
+  {
+    "placa": "zwa2v08",
+    "data": "2026-02-20",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-032",
+    "cnh": "73124119214",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-02-26",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-03-01",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-003",
+    "cnh": "95647060117",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-03-02",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-003",
+    "cnh": "95647060117",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2026-03-02",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-036",
+    "cnh": "27654989692",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "zzd8c78",
+    "data": "2026-03-03",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-043",
+    "cnh": "57466780724",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-03-06",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-03-08",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "xxp1e25",
+    "data": "2026-03-13",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-03-14",
+    "gravidade": "gravissima",
+    "valor": 293.47,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5169-1"
+  },
+  {
+    "placa": "noa1g14",
+    "data": "2026-03-15",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "iqh6592",
+    "data": "2026-03-20",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-024",
+    "cnh": "40321133395",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "zzd8c78",
+    "data": "2026-03-26",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-043",
+    "cnh": "57466780724",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "nri9n29",
+    "data": "2026-03-27",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-034",
+    "cnh": "14351214292",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "zpl3652",
+    "data": "2026-03-29",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-027",
+    "cnh": "88882813515",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-03-29",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "rvf8a77",
+    "data": "2026-03-31",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-048",
+    "cnh": "83182224195",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2026-04-01",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-036",
+    "cnh": "27654989692",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "vet7j09",
+    "data": "2026-04-01",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-060",
+    "cnh": "00197726770",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "uct8141",
+    "data": "2026-04-06",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-035",
+    "cnh": "00729989869",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-04-07",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-04-07",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-04-10",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-059",
+    "cnh": "32091217307",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-04-13",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "kem1i61",
+    "data": "2026-04-13",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-030",
+    "cnh": "82007308312",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-04-15",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-04-19",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-006",
+    "cnh": "54159124799",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "msr4361",
+    "data": "2026-04-23",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-04-23",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-059",
+    "cnh": "32091217307",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2026-04-24",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-043",
+    "cnh": "57466780724",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "jrq6j90",
+    "data": "2026-04-24",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-025",
+    "cnh": "57613620311",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "cqz8h45",
+    "data": "2026-04-27",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-033",
+    "cnh": "13027874652",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-04-29",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "zfg0155",
+    "data": "2026-05-02",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-035",
+    "cnh": "00729989869",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-05-07",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2026-05-07",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-036",
+    "cnh": "27654989692",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-05-13",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "qsc3784",
+    "data": "2026-05-14",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-047",
+    "cnh": "75921897487",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-05-16",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "kaj9n81",
+    "data": "2026-05-22",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-043",
+    "cnh": "57466780724",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "sms1959",
+    "data": "2026-05-23",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-036",
+    "cnh": "27654989692",
+    "situacao": "pendente",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-05-24",
+    "gravidade": "gravissima",
+    "valor": 293.47,
+    "condutor": "COND-059",
+    "cnh": "32091217307",
+    "situacao": "paga",
+    "codigo_infracao": "5169-1"
+  },
+  {
+    "placa": "iir4380",
+    "data": "2026-05-31",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-06-03",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-006",
+    "cnh": "54159124799",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-06-03",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "arz1h59",
+    "data": "2026-06-12",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-044",
+    "cnh": "76611366758",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-06-12",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "iir4380",
+    "data": "2026-06-14",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "pendente",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "kem1i61",
+    "data": "2026-06-15",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-030",
+    "cnh": "82007308312",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-06-16",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-052",
+    "cnh": "97529900130",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-06-22",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-056",
+    "cnh": "21008755321",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-06-23",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-06-25",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-06-29",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-003",
+    "cnh": "95647060117",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "xxp1e25",
+    "data": "2026-07-02",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-019",
+    "cnh": "58572778099",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "mbo1t69",
+    "data": "2026-07-04",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-07-05",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "pendente",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-07-05",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-006",
+    "cnh": "54159124799",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "too0o73",
+    "data": "2026-07-07",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-034",
+    "cnh": "14351214292",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "kaj9n81",
+    "data": "2026-07-09",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-050",
+    "cnh": "14515060165",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "jue4d64",
+    "data": "2026-07-11",
+    "gravidade": "grave",
+    "valor": 195.23,
+    "condutor": "COND-048",
+    "cnh": "83182224195",
+    "situacao": "paga",
+    "codigo_infracao": "5541-1"
+  },
+  {
+    "placa": "uct8141",
+    "data": "2026-07-13",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-035",
+    "cnh": "00729989869",
+    "situacao": "paga",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "vcs1t40",
+    "data": "2026-07-13",
+    "gravidade": "media",
+    "valor": 130.16,
+    "condutor": "COND-052",
+    "cnh": "97529900130",
+    "situacao": "pendente",
+    "codigo_infracao": "5185-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-07-13",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-003",
+    "cnh": "95647060117",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  },
+  {
+    "placa": "oll2058",
+    "data": "2026-07-14",
+    "gravidade": "leve",
+    "valor": 88.38,
+    "condutor": "COND-010",
+    "cnh": "53749702775",
+    "situacao": "paga",
+    "codigo_infracao": "5452-1"
+  }
+]

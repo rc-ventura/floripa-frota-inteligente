@@ -30,7 +30,8 @@ canônico que o gerador usa para derivar as 4 fontes com grafias divergentes).
     "km_mes": 1500,                // km/mês sorteado na faixa do tipo (R12) — base da série de hodômetro
     "demo_gatilho": true,          // true para os 2 veículos da demo (índices 0 e 1)
     "demo_gatilho_tipo": "km",     // "km" | "tempo" | null
-    "custo_desproporcional": false // true para exatamente 1 leve fora da demo (FR-009, R12)
+    "custo_desproporcional": false, // true para exatamente 1 leve fora da demo (FR-009, R12)
+    "condutores": ["COND-012", "COND-019"]  // pool sintético do veículo (FR-004) — usado por abastecimento e multas
   }
 ]
 ```
@@ -111,7 +112,7 @@ validação oficial de checksum (módulo 11) — obviamente não-real.
 ## Fonte 3 — Manutenção (XLSX multi-abas)
 
 **Arquivo**: `data/seeds/manutencao.xlsx`
-**Volume**: ~300 registros distribuídos em 3 abas (cadência derivada dos limiares × km/mês
+**Volume**: ~250–300 registros distribuídos em 3 abas (cadência derivada dos limiares × km/mês
 do veículo, + corretivas — R12; o veículo de `custo_desproporcional` recebe 2–3 corretivas
 extras de valor alto). Veículos `em_garantia` registram **revisões programadas nos marcos
 do fabricante** (10.000 km/12 meses) na aba `Manutenção Terceirizada`, com grafias como

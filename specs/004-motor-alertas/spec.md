@@ -32,7 +32,7 @@ Como gestor da frota, quero ser alertado quando um veículo se aproxima do limit
 
 Como gestor da frota, quero ser alertado quando faz tempo demais desde a última manutenção de um tipo (com antecedência em dias), para cobrir veículos que rodam pouco mas envelhecem igual.
 
-**Why this priority**: Segundo gatilho obrigatório do briefing (4.3); um dos dois veículos da demo nasce a ~20 dias do limiar.
+**Why this priority**: Segundo gatilho obrigatório do briefing (4.3); um dos dois veículos da demo (veículo B) nasce com a antecedência de tempo já cruzada (166 dias; limiar 165) — o alerta dele aparece no primeiro ciclo do motor, evidenciando este gatilho sem manipulação ao vivo.
 
 **Independent Test**: Popular última manutenção com data conhecida, configurar limite de dias e rodar a verificação.
 

@@ -79,6 +79,14 @@ clarificações/requisitos na spec:
    Evolução documentada: planos por **modelo** entram, quando necessário, como coluna
    adicional em `LIMIAR_CONFIG` com regra "mais específico vence" — mudança de dados, não
    de código (constitution V).
+10. **A anomalia de km-ausente nunca recai sobre a âncora** *(adendo 2026-07-15b — correção
+    do ciclo 1 do sdd-final-review)*: além das âncoras da demo e dos marcos de garantia, o
+    **evento de maior km de cada (placa, tipo de manutenção)** é imune ao km ausente. É esse
+    evento que o motor usa em `km_desde_ultima`; anulá-lo faria o cálculo cair num evento
+    anterior e cruzar o limiar de antecedência, gerando alertas espúrios em veículos
+    não-demo — violação do invariante "demais veículos longe dos limiares" (bug HIGH
+    confirmado por QA + Devin + Tech Leader no ciclo 1). Regressão coberta por
+    `test_sem_alertas_espurios` (falhava antes do fix; passa depois).
 
 Volumes recalibrados pelo modelo de consumo (plan da spec 001): ~1.500 abastecimentos,
 ~300 manutenções e ~100 multas em 8 meses × 40 veículos.

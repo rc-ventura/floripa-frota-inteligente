@@ -33,7 +33,7 @@
   padrão de fabricante — 10.000 km/12 meses, o que vier primeiro; ver sessão 2026-07-15 e
   ADR-003 item 9. Caminhões permanecem 30.000 km.)*
 
-  Os 2 veículos da demo nascerão próximos do limiar de `troca_oleo` (leve): um a ~600 km do limite de km (km_desde_ultima ≈ 4400, faltam 600 para 5000; alerta dispara a 4500), outro a ~20 dias do limite de tempo (dias_desde_ultima ≈ 160, faltam 20 para 180; alerta dispara a 165). Demais veículos ficam bem dentro dos limites (sem alertas espúrios).
+  Os 2 veículos da demo nascerão posicionados contra o limiar de `troca_oleo` (leve): o veículo A a ~600 km do limite de km (km_desde_ultima = 4400, faltam 600 para 5000; antecedência dispara a 4500 — **ainda não cruzada**, é o gatilho ao vivo via CSV), e o veículo B com a antecedência de tempo **já cruzada** (dias_desde_ultima = 166; antecedência dispara a 165, limite 180 ainda não atingido — o alerta surge sozinho no 1º ciclo do motor, sem manipulação ao vivo). *(Atualizado em 2026-07-15: o valor original ≈160 dias foi refinado para 166 no research R4 — ver justificativa lá — e a spec foi alinhada; achado F1 do speckit-analyze.)* Demais veículos ficam bem dentro dos limites (sem alertas espúrios).
 - Q: Tamanho exato da frota e janela de histórico (a spec dá apenas o intervalo ~30–60 veículos / 6–12 meses)? → A: 40 veículos (≈30 leves, 6 ambulâncias, 4 caminhões) e 8 meses de histórico. Fixa o tamanho para garantir reprodutibilidade (SC-004) e dar ao painel de custos volume agregável, mantendo geração < 1 min (SC-001).
 - Q: Como tratar o campo CNH nas multas (tensão entre arquitetura §2 "CNH presente" e spec "sem dado pessoal real")? → A: O JSON de multas **espelha a estrutura do Auto de Infração de Trânsito** (Portaria SENATRAN nº 354/2022, Bloco 3 — Identificação do Condutor), mas com valores **sintéticos não-reais**: campos `placa` (em minúsculas — inconsistência propositada), `data`, `valor`, `situacao`, `condutor` como `COND-NNN` (pseudônimo) e `cnh` com número sintético no formato de CNH (não vinculado a pessoa real). O pipeline, na carga consolidada, **descarta** `cnh` e persiste apenas `condutor_pseudo` na tabela `MULTA` (ERD intacto) — este descarte é o passo de minimização LGPD demonstrável à banca. Base legal: execução de política pública (LGPD art. 7º/23). Uma multa associa-se ao veículo (placa, obrigatória) e ao condutor (nome/CNH/CPF, facultativos no AIT quando identificado); a fonte simulada reflete isso sem dado real.
 
@@ -94,7 +94,7 @@ Como responsável pelo pipeline, preciso que cada fonte contenha as inconsistên
 
 ### User Story 3 - Cenário determinístico da demo (Priority: P2)
 
-Como apresentador da demo, preciso que exatamente dois veículos nasçam próximos dos limiares (~600 km e ~20 dias) e que exista um arquivo de abastecimento "de gatilho" pronto para depositar ao vivo, para que o alerta dispare de forma reproduzível durante a apresentação.
+Como apresentador da demo, preciso que exatamente dois veículos nasçam posicionados contra os limiares — A a ~600 km do limite de km (antecedência ainda não cruzada) e B com a antecedência de tempo já cruzada (166 dias) — e que exista um arquivo de abastecimento "de gatilho" pronto para depositar ao vivo, para que o alerta de A dispare ao vivo e o de B apareça no primeiro ciclo do motor, de forma reproduzível durante a apresentação.
 
 **Why this priority**: É o caminho para a métrica binária de sucesso do briefing (alerta antes do vencimento), mas depende da US1 existir.
 
@@ -102,7 +102,7 @@ Como apresentador da demo, preciso que exatamente dois veículos nasçam próxim
 
 **Acceptance Scenarios**:
 
-1. **Given** os dados gerados, **When** verificados os dois veículos marcados para a demo, **Then** um está a ~600 km do limite de km e outro a ~20 dias do limite de tempo (dentro da janela de antecedência ainda não cruzada).
+1. **Given** os dados gerados, **When** verificados os dois veículos marcados para a demo, **Then** o veículo A está a ~600 km do limite de km com a janela de antecedência **ainda não cruzada** (4400 de 5000; dispara a 4500), e o veículo B está com a antecedência de tempo **já cruzada** e o limite ainda não (166 dias; antecedência 165, limite 180).
 2. **Given** o arquivo de gatilho preparado, **When** ingerido pelo pipeline, **Then** o km atualizado cruza o limiar de antecedência do veículo da demo.
 
 ---
@@ -122,7 +122,7 @@ Como responsável por conformidade, preciso que nenhum nome real de servidor exi
 ### Edge Cases
 
 - Regeneração: rodar o gerador duas vezes deve produzir resultado idêntico (semente fixa) ou claramente versionado — nunca um cenário de demo diferente a cada execução.
-- Volume: dados suficientes para o painel de custos ter o que agregar (histórico de meses), mas pequenos o bastante para ciclos de 1–2 min na demo.
+- Volume: dados suficientes para o painel de custos ter o que agregar (histórico de meses), mas pequenos o bastante para o **ciclo agendado ETL+motor** de 1–2 min da demo (arquitetura §8) processar com folga — o tempo de *geração* é tratado à parte no SC-001.
 - As inconsistências não podem tornar um veículo da demo inválido: os dois veículos "no gatilho" precisam passar pelas regras de qualidade.
 
 ## Requirements *(mandatory)*
@@ -133,8 +133,8 @@ Como responsável por conformidade, preciso que nenhum nome real de servidor exi
 - **FR-002**: Todas as fontes MUST referenciar o mesmo cadastro de veículos, com a placa como chave de reconciliação (grafias divergentes entre fontes são esperadas e desejadas). O cadastro MUST misturar os dois formatos vigentes de placa: ~70% Mercosul (`AAA9A99`) e ~30% antigo (`AAA9999`) — ADR-001.
 - **FR-003**: Cada fonte MUST conter as inconsistências propositais da tabela da seção 2 da arquitetura, e a lista de inconsistências MUST estar documentada no repositório.
 - **FR-004**: Condutores MUST nascer como identificadores sintéticos (`COND-NNN`); nenhum nome, CPF, CNH real ou matrícula real pode existir em qualquer dataset.
-- **FR-005**: Dois veículos MUST nascer deterministicamente a ~600 km e ~20 dias dos respectivos limiares, e um arquivo de abastecimento de gatilho MUST ficar pronto para uso na demo. O arquivo de gatilho é um CSV de abastecimento (mesmo formato das demais cargas, incluindo a coluna km/hodômetro) cujo km, ao ser ingerido, faz `veiculo.km_atual` cruzar o limiar de antecedência do veículo da demo.
-- **FR-006**: A geração MUST ser reproduzível (semente fixa): mesmas entradas → mesmos dados.
+- **FR-005**: Dois veículos MUST nascer deterministicamente posicionados contra os limiares — A a ~600 km do limite de km (antecedência não cruzada) e B a 166 dias (antecedência de tempo cruzada, limite não) — e um arquivo de abastecimento de gatilho MUST ficar pronto para uso na demo. O arquivo de gatilho é um CSV de abastecimento (mesmo formato das demais cargas, incluindo a coluna km/hodômetro) cujo km, ao ser ingerido, faz `veiculo.km_atual` cruzar o limiar de antecedência do veículo da demo.
+- **FR-006**: A geração MUST ser reproduzível (semente fixa): mesmas entradas → mesmos dados. As entradas incluem a **data-âncora** (`--data-ancora`, com default documentado), a partir da qual todas as datas relativas são calculadas (dias_desde_ultima, vencimentos, janela de 8 meses) — nunca `datetime.now()`. O roteiro da demo (spec 007) regenera os seeds com a âncora do dia da apresentação.
 - **FR-007**: Os datasets iniciais MUST ser depositados nos locais convencionados no repositório (seeds e pasta monitorada), conforme estrutura da seção 9 da arquitetura.
 - **FR-008**: As multas MUST ser servidas por um endpoint HTTP local que retorna JSON válido (simulando integração com sistema externo, ex.: DETRAN); uma requisição GET simples retorna os dados prontos para o extrator.
 - **FR-009**: Um veículo leve MUST nascer com custo de operação deliberadamente desproporcional (corretivas extras + consumo alto + multas concentradas), marcado no cadastro interno, para o comparativo "candidato a renovação" da spec 006 (ADR-003).
@@ -155,7 +155,7 @@ Como responsável por conformidade, preciso que nenhum nome real de servidor exi
 
 ### Measurable Outcomes
 
-- **SC-001**: Um único comando produz os 4 datasets em menos de 1 minuto, em qualquer máquina da equipe.
+- **SC-001**: Um único comando produz os 4 datasets em menos de 1 minuto na máquina de referência (o notebook que será usado na demo; conferido também nas máquinas da equipe).
 - **SC-002**: 100% das inconsistências listadas na seção 2 da arquitetura estão presentes e documentadas (verificável por checklist manual).
 - **SC-003**: Zero ocorrências de dado pessoal real em varredura completa dos datasets.
 - **SC-004**: Em 10 regenerações consecutivas, os mesmos 2 veículos da demo aparecem à mesma distância dos limiares (100% reproduzível).

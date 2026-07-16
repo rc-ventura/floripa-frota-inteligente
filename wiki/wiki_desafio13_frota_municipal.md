@@ -117,7 +117,7 @@ Como cada exigência do briefing percorre o roadmap, a arquitetura e o Kanban:
 | **`condutor_pseudo`** | Identificador sintético (`COND-042`) que substitui o nome real do servidor desde a geração dos dados — decisão de conformidade LGPD | Arquitetura §2, §4, D8 |
 | **`fonte_origem`** | Campo presente em toda tabela consolidada que registra de qual carga/fonte veio o dado — materializa a auditabilidade exigida pelo briefing | Arquitetura §4, §10 |
 | **`log_qualidade`** | Tabela que registra todo dado rejeitado no pipeline com o motivo (`placa_invalida`, `data_ausente`, `duplicado`) — evidência do tratamento de inconsistências | Arquitetura §3.1 |
-| **Cenário determinístico** | Veículos pré-posicionados a ~600 km / ~20 dias do limiar, para garantir que o alerta dispare de forma confiável na demo ao vivo | Roadmap Fase 2; Arquitetura §5.2 |
+| **Cenário determinístico** | Veículo A pré-posicionado a ~600 km do limite de km (gatilho ao vivo via CSV) e veículo B com a antecedência de tempo já cruzada (alerta no 1º ciclo do motor), para garantir disparo confiável na demo ao vivo | Roadmap Fase 2; Arquitetura v2 §5.2 |
 | **Staging** | Camada intermediária onde os dados brutos são gravados sem transformação, antes da limpeza — garante rastreabilidade | Arquitetura §1, §3.1 |
 
 ---

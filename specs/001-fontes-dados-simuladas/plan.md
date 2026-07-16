@@ -10,8 +10,9 @@
 
 Gerar 4 datasets simulados heterogêneos (abastecimento CSV, multas JSON via mini-API FastAPI,
 manutenção XLSX multi-abas, licenciamento SQLite) com inconsistências propositais documentadas,
-pseudonimização LGPD desde a origem (`COND-NNN`), cenário determinístico da demo (2 veículos a
-~600 km e ~20 dias dos limiares de `troca_oleo`/`leve` = 5000 km / 180 dias) e um CSV-gatilho
+pseudonimização LGPD desde a origem (`COND-NNN`), cenário determinístico da demo (veículo A a
+~600 km do limite de km — gatilho ao vivo; veículo B a 166 dias — antecedência de tempo já
+cruzada, alerta no 1º ciclo; limiares `troca_oleo`/`leve` = 5000 km / 180 dias) e um CSV-gatilho
 pronto para depositar ao vivo. Stack: Python 3.12 + pandas + openpyxl + FastAPI, conforme
 decisões D1 e D5 da arquitetura v2.0. Revisão de realismo de 2026-07-14 (ADRs 001–003):
 placas nos dois formatos vigentes (~70% Mercosul), km do hodômetro persistido no consolidado,
@@ -55,7 +56,7 @@ coerente e um veículo deliberadamente caro para a spec 006. É o ponto de parti
 **Performance Goals**: Geração dos 4 datasets em < 1 min em máquina comum (SC-001). Mini-API responde GET em < 100 ms localmente.
 
 **Constraints**:
-- Determinismo absoluto: mesma semente → mesmos dados (FR-006, SC-004). Nenhuma fonte de entropia externa (sem `os.urandom`, sem `datetime.now()` não-seedado).
+- Determinismo absoluto: mesmas entradas (semente fixa + data-âncora explícita) → mesmos dados (FR-006, SC-004). Nenhuma fonte de entropia externa (sem `os.urandom`, sem `datetime.now()`); toda data relativa deriva de `DATA_ANCORA` (CLI `--data-ancora`, default documentado — regenerar seeds com a âncora do dia da apresentação faz parte do roteiro da demo, spec 007).
 - Zero dado pessoal real (FR-004, SC-003, constitution IV).
 - Os 2 veículos da demo devem passar pelas regras de qualidade do pipeline (Edge Case da spec) — logo, suas placas são válidas no formato canônico, apenas as *demais* fontes as grafam de forma divergente.
 - Coerência física (FR-011, SC-005, ADR-003): hodômetro monotônico por veículo e consistente entre fontes; litros derivados do modelo de consumo por tipo (research R12); valores de multa ∈ tabela de gravidades do CTB (R10); vencimento de licenciamento pelo final da placa (R11).
@@ -138,4 +139,5 @@ frontend). Testes em `tests/` na raiz, seguindo o padrão `pytest` do projeto.
 
 | Item | Por que necessário | Alternativa mais simples rejeitada porque |
 |---|---|---|
-| `LIMIARES_SEMENTE` local no gerador (cópia dos valores que serão formalizados em `LIMIAR_CONFIG` pela spec 002) | O gerador precisa dos limiares para posicionar os 2 veículos da demo a ~600 km / ~20 dias do limite. O gerador roda **antes** do banco existir (é a fonte de dados; não pode depender da `LIMIAR_CONFIG` que vive no banco). | Ler `LIMIAR_CONFIG` do banco no gerador: rejeitado porque cria dependência circular (gerador → banco → gerador) e viola o isolamento de camadas (constitution VI — o gerador é camada de fonte, não pode ler o banco de armazenamento). A sincronização é garantida por convenção: `limiares_semente.json` e a migration da spec 002 usam os mesmos valores literais, e o `INCONSISTENCIAS.md`/quickstart documentam o acoplamento. |
+| `LIMIARES_SEMENTE` local no gerador (cópia dos valores que serão formalizados em `LIMIAR_CONFIG` pela spec 002) | O gerador precisa dos limiares para posicionar os 2 veículos da demo (~600 km / 166 dias contra o limite). O gerador roda **antes** do banco existir (é a fonte de dados; não pode depender da `LIMIAR_CONFIG` que vive no banco). | Ler `LIMIAR_CONFIG` do banco no gerador: rejeitado porque cria dependência circular (gerador → banco → gerador) e viola o isolamento de camadas (constitution VI — o gerador é camada de fonte, não pode ler o banco de armazenamento). A sincronização é garantida por convenção: `limiares_semente.json` e a migration da spec 002 usam os mesmos valores literais, e o `INCONSISTENCIAS.md`/quickstart documentam o acoplamento. |
+| Bloco de constantes de calibração no gerador (tabela CTB de multas, calendário DETRAN-SC, faixas km/mês·km/L·tanque, catálogo de marcas/modelos, proporção 70/30 de placas, razão corretiva/preventiva 3–5×, marcos de revisão — T005) | São a **definição da fonte simulada** (fixture), não regra de negócio do sistema: o motor, o pipeline e o dashboard nunca leem esses valores — eles só existem para os arquivos-fonte nascerem plausíveis (ADR-003). A constitution V mira limiares do motor (`LIMIAR_CONFIG`) e parâmetros operacionais (variáveis de ambiente), ambos atendidos. | Externalizar em `calibracao.json`: rejeitado — adicionaria um artefato de configuração para valores que nunca mudam em runtime nem são consumidos por outra camada, violando simplicidade (constitution VII). Se um valor regulatório mudar (CTB, calendário), edita-se o bloco único de T005 e regenera-se — mesmo custo de editar um JSON. Os marcos de revisão programada reutilizam as linhas `revisao_geral` da `limiares_semente.json` (fonte única, sem duplicação). |

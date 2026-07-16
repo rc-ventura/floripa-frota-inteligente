@@ -217,7 +217,7 @@ Regras complementares:
 
 ### 5.2 Cenário determinístico da demo
 
-Dois veículos do dataset nascem propositalmente a ~600 km e a ~20 dias dos respectivos limiares. Durante a apresentação, deposita-se um CSV de abastecimento novo (com km atualizado) na pasta monitorada; no ciclo seguinte o pipeline ingere, o motor cruza o limiar de antecedência e o alerta surge no painel — **antes do vencimento**, satisfazendo a métrica binária de sucesso. Um vídeo gravado do mesmo roteiro fica como plano B.
+Dois veículos do dataset nascem propositalmente posicionados contra os limiares: o **veículo A** a ~600 km do limite de km, com a antecedência ainda não cruzada — durante a apresentação, deposita-se um CSV de abastecimento novo (com km atualizado) na pasta monitorada; no ciclo seguinte o pipeline ingere, o motor cruza o limiar de antecedência e o alerta surge no painel — **antes do vencimento**, satisfazendo a métrica binária de sucesso. O **veículo B** nasce com a antecedência de tempo já cruzada (166 dias; limiar 165, limite 180) — seu alerta aparece sozinho no primeiro ciclo do motor, evidenciando o gatilho por tempo sem manipulação ao vivo. Os dados são gerados a partir de uma data-âncora explícita (regenerada para o dia da apresentação — spec 001/007). Um vídeo gravado do mesmo roteiro fica como plano B.
 
 ---
 

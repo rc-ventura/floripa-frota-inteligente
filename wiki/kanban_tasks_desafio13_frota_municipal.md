@@ -53,7 +53,7 @@ Este documento é a versão legível em Markdown do CSV de importação do quadr
 | 2 | Alerta por tempo 🔴 demo-crítico | Dispara quando dias_desde_ultima >= limite_dias - antecedencia_dias. Critério: teste unitário passando. | ⚙️ Backend | **Alta** |
 | 3 | Idempotência e histórico de alertas | Sem duplicar alerta ativo para mesma (placa, tipo, gatilho); alertas resolvidos preservados como histórico. | ⚙️ Backend | Normal |
 | 4 | Alerta dados_insuficientes | Veículo sem manutenção registrada ou km não confiável gera alerta especial em vez de ser ignorado. | ⚙️ Backend | Normal |
-| 5 | Cenário determinístico da demo 🔴 demo-crítico | 2 veículos nascendo a ~600 km e ~20 dias dos limiares; roteiro do CSV que cruza o gatilho. Critério: alerta dispara de forma reproduzível. | 🗂️ Dados | **Alta** |
+| 5 | Cenário determinístico da demo 🔴 demo-crítico | Veículo A a ~600 km do limite de km (gatilho ao vivo via CSV) e veículo B com antecedência de tempo já cruzada (166 dias — alerta no 1º ciclo); dados gerados com data-âncora explícita. Critério: alerta dispara de forma reproduzível. | 🗂️ Dados | **Alta** |
 | 6 | Agendamento (APScheduler) 🔴 demo-crítico | ETL + motor rodando em ciclo configurável por variável de ambiente (1-2 min na demo). | ⚙️ Backend | **Alta** |
 
 ## Fase 3 — Painel da frota
