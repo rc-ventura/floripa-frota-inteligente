@@ -136,7 +136,7 @@ trivialmente verdadeiro. Histórico permanente: nenhuma exclusão; transição `
 |---|---|---|
 | `manutencao` | `(placa, data, tipo)` | chave natural oficial da dedup (spec 003 FR-004) |
 | `abastecimento` | `(placa, data, km_hodometro)` | hodômetro é monotônico/único por abastecimento (R12 da 001); NULLs de km não conflitam — dedup fina fica no pipeline |
-| `multa` | `(placa, data, valor, condutor_pseudo)` | melhor chave natural disponível sem persistir codigo_infracao (fonte-apenas, ADR-003) |
+| `multa` | `(placa, data, valor, coalesce(condutor_pseudo, ''))` — índice único de expressão `ux_multa_upsert` | melhor chave natural disponível sem persistir codigo_infracao (fonte-apenas, ADR-003); o coalesce faz multas sem condutor também colidirem (ADR-004 — sem ele, NULL≠NULL deixava duplicatas passarem) |
 | `licenciamento` | `placa` (PK, 1:1) | upsert = atualizar vencimento/situação mais recentes |
 | `veiculo` | `placa` (PK) | upsert de cadastro |
 

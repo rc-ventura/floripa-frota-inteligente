@@ -41,7 +41,7 @@ SQLite ↔ PostgreSQL — decisão D2). Nomes de tabela em `snake_case` minúscu
 | `km_hodometro` | Integer | **NULL** | leitura do odômetro no abastecimento — série temporal de km (ADR-002) |
 | `condutor_pseudo` | String | NULL; formato `COND-NNN` | LGPD D8 |
 | `fonte_origem` | String | NOT NULL | |
-| — | — | **UNIQUE `(placa, data, km_hodometro)`** | chave de upsert do pipeline (research R7) |
+| — | — | **UNIQUE `(placa, data, km_hodometro)`** | chave de upsert do pipeline (research R7). **km NULL não colide** (NULL≠NULL) — deliberado: dois abastecimentos sem km no mesmo dia podem ser eventos reais; dedup fina é do pipeline (ADR-004) |
 
 ### `manutencao`
 
@@ -68,7 +68,7 @@ SQLite ↔ PostgreSQL — decisão D2). Nomes de tabela em `snake_case` minúscu
 | `condutor_pseudo` | String | NULL; formato `COND-NNN` | |
 | `situacao` | String | NOT NULL; CHECK IN (`pendente`, `paga`) | |
 | `fonte_origem` | String | NOT NULL | |
-| — | — | **UNIQUE `(placa, data, valor, condutor_pseudo)`** | chave pragmática de upsert (research R7) |
+| — | — | **UNIQUE por expressão `ux_multa_upsert`: `(placa, data, valor, coalesce(condutor_pseudo, ''))`** | chave pragmática de upsert (research R7). O `coalesce('')` faz multas **sem condutor também colidirem** — sem ele, NULL≠NULL deixava duplicatas entrarem (migration 0002, ADR-004) |
 
 ### `licenciamento` (1:1 com veículo)
 

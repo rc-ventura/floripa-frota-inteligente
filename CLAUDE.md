@@ -71,6 +71,7 @@ docs/decisoes/   ADRs                                         specs/       espec
 | [ADR-001](./docs/decisoes/ADR-001-placa-canonica-dois-formatos.md) | Placa canônica aceita os dois formatos brasileiros (antigo + Mercosul) | Proposta | 2026-07-14 |
 | [ADR-002](./docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md) | Persistir o km do hodômetro na tabela consolidada `ABASTECIMENTO` | Proposta | 2026-07-14 |
 | [ADR-003](./docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md) | Calibração de realismo das fontes simuladas (gerador — spec 001) | Proposta | 2026-07-14 |
+| [ADR-004](./docs/decisoes/ADR-004-null-em-chaves-de-upsert.md) | Tratamento de NULL em chaves de unicidade/upsert das consolidadas (coalesce-sentinela) | Proposta | 2026-07-17 |
 
 ## Learning Lessons
 
