@@ -22,6 +22,11 @@ docs/decisoes/   ADRs                                         specs/       espec
 wiki/            briefing, arquitetura, kanban (fonte da verdade do desafio)
 ```
 
+**Arquitetura em 4 camadas** — os componentes conversam só via banco; dashboard nunca lê
+arquivo-fonte, motor nunca lê o pipeline diretamente (constitution VI):
+
+![Arquitetura em 4 camadas](docs/checkpoints/img_hd/fluxo_hd.png)
+
 O trabalho está dividido em **7 especificações** (`specs/001` a `specs/007`), cada uma dizendo
 **o que** construir e **por que** — o **como técnico** (stack, plano, tasks) fica a cargo de
 quem assumir cada uma. Veja `specs/README.md` para o mapa completo, com dependências entre elas.
@@ -29,7 +34,7 @@ quem assumir cada uma. Veja `specs/README.md` para o mapa completo, com dependê
 Documentos de referência, em ordem de desempate se houver conflito:
 
 1. Briefing oficial do desafio (`.docx`, não editar)
-2. `wiki/arquitetura_tecnica_desafio13_v2.md` — decisões técnicas (D1–D8), ERD, pipeline (v1 preservada; mudanças da v2 em `docs/decisoes/ADR-001..003`)
+2. `wiki/arquitetura_tecnica_desafio13_v2.md` — decisões técnicas (D1–D8), ERD, pipeline (v1 preservada; mudanças da v2 em `docs/decisoes/ADR-001..004`)
 3. `specs/*/spec.md` — o que cada parte precisa entregar
 4. `wiki/kanban_tasks_desafio13_frota_municipal.md` — as 36 tasks originais, por fase
 5. `.specify/memory/constitution.md` — princípios inegociáveis do projeto
@@ -45,12 +50,23 @@ Documentos de referência, em ordem de desempate se houver conflito:
                                            └───────────────────────────► 006-painel-custos ──────────┘
 ```
 
-**Independentes (comecem já, em paralelo):**
-- `001-fontes-dados-simuladas` — não depende de nenhuma outra spec.
-- `002-modelo-dados-banco` — não depende de nenhuma outra spec.
+**ERD** — 8 entidades consolidadas, placa canônica (ADR-001) como chave de reconciliação
+entre as 4 fontes. Diagrama completo (12 tabelas com staging + `log_qualidade`) em
+`specs/002-modelo-dados-banco/data-model.md`:
 
-Essas duas são o ponto de partida do projeto: dados (001) e schema/backend (002) são
-frentes de pessoas diferentes que não se bloqueiam uma à outra.
+![ERD — 8 tabelas consolidadas](docs/checkpoints/img_hd/erd_hd.png)
+
+**Estado atual (2026-07-17):**
+
+| Spec | Status |
+|---|---|
+| `001-fontes-dados-simuladas` | ✅ entregue em `dev` (PRs #2 e #3) |
+| `002-modelo-dados-banco` | ✅ entregue em `dev` (PR #4) |
+| `003-pipeline-etl` | 🔓 desbloqueada — é a próxima do caminho crítico |
+| `004` a `007` | ⏳ aguardando dependências (tabela abaixo) |
+
+As duas specs independentes (dados e schema) já foram entregues — o que existe de
+concreto delas, e como rodar, está na seção 3.
 
 **Dependentes:**
 
@@ -72,13 +88,129 @@ frentes de pessoas diferentes que não se bloqueiam uma à outra.
 pegar o painel de custos pode trabalhar em paralelo com quem estiver no motor de alertas ou
 no painel de frota, assim que o pipeline (003) estiver de pé.
 
-**Sugestão de alocação com 4+ pessoas:** comecem `001` e `002` juntas no dia 1; assim que
-`003` estiver pronto, uma pessoa ataca `004` (motor) enquanto outra já ataca `006` (custos)
-em paralelo — só `005` precisa esperar `004` terminar.
+**Sugestão de alocação:** com `001` e `002` entregues, o foco vai todo para `003`; assim
+que ela estiver pronta, uma pessoa ataca `004` (motor) enquanto outra já ataca `006`
+(custos) em paralelo — só `005` precisa esperar `004` terminar.
 
 ---
 
-## 3. O fluxo de trabalho (gitflow)
+## 3. Roadmap
+
+Progresso das 36 tasks do kanban original (`wiki/kanban_tasks_desafio13_frota_municipal.md`),
+atualizado conforme cada spec é entregue. **Legenda:** 🔴 `demo-crítico` · 🟡 `compliance`
+(LGPD/LAI/Lei 14.133).
+
+### Fase 0 — Modelagem (5 tasks)
+
+- [ ] 1. Definir papéis da equipe — tabela de papéis registrada no repositório
+- [x] 2. Decidir dados reais vs simulados — dados simulados formalizados (spec 001)
+- [x] 3. Validar modelo de dados unificado — ERD v2 materializado em 12 tabelas (spec 002)
+- [x] 4. 🔴 Definir limiares iniciais (LIMIAR_CONFIG) — 9 linhas semeadas de `limiares_semente.json` (spec 002)
+- [x] 5. 🟡 Mapear campos com dado pessoal — introspecção LGPD no esquema, zero de-para (spec 002 US3)
+
+### Fase 1 — Integração de dados (10 tasks)
+
+- [x] 1. 🔴 Criar gerador_dados.py (4 fontes) — `data/gerador_dados.py` + 4 datasets com inconsistências (spec 001)
+- [x] 2. Subir API fake de multas (FastAPI) — `fake_api/main.py` servindo multas (spec 001)
+- [x] 3. Modelar banco (SQLAlchemy + migrations) — `db/models.py` + 2 migrations + `init_db.py` idempotente (spec 002)
+- [ ] 4. 🔴 Extrator de abastecimento (CSV/pasta monitorada) — spec 003
+- [ ] 5. Extrator de multas (API) — spec 003
+- [ ] 6. Extrator de manutenção (XLSX) — spec 003
+- [ ] 7. Extrator de licenciamento (SQLite) — spec 003
+- [ ] 8. 🔴 Transformação e regras de qualidade — spec 003
+- [ ] 9. 🔴 Carga idempotente (upsert) — chaves UNIQUE prontas no banco (spec 002/ADR-004); carga é spec 003
+- [ ] 10. Documentar pipeline e rastreabilidade — spec 003
+
+### Fase 2 — Motor de alertas (6 tasks) — spec 004
+
+- [ ] 1. 🔴 Alerta por quilometragem
+- [ ] 2. 🔴 Alerta por tempo
+- [ ] 3. Idempotência e histórico de alertas
+- [ ] 4. Alerta dados_insuficientes
+- [ ] 5. 🔴 Cenário determinístico da demo
+- [ ] 6. 🔴 Agendamento (APScheduler)
+
+### Fase 3 — Painel da frota (6 tasks) — spec 005
+
+- [ ] 1. 🔴 Visão situação da frota
+- [ ] 2. Drill-down por veículo
+- [ ] 3. 🔴 Visão de alertas
+- [ ] 4. 🟡 Toggle Gestor/Pública
+- [ ] 5. 🔴 Auto-refresh do painel
+- [ ] 6. Teste de usabilidade externo
+
+### Fase 3a — Painel de custos (3 tasks) — spec 006
+
+- [ ] 1. Consolidação de gastos
+- [ ] 2. Comparativo entre veículos
+- [ ] 3. Marcar indicadores derivados vs calculados
+
+### Fase 4 — Demo e conformidade (6 tasks) — spec 007
+
+- [ ] 1. Análise de impacto econômico
+- [ ] 2. 🟡 Documento de conformidade LGPD/LAI/14.133
+- [ ] 3. 🔴 Docker Compose funcional
+- [ ] 4. 🔴 Ensaio da demo ao vivo
+- [ ] 5. 🔴 Vídeo plano B do disparo do alerta
+- [ ] 6. Pitch e posicionamento
+
+**Progresso:** 7/36 tasks concluídas — Fase 0: 4/5 · Fase 1: 3/10 · Fases 2–4: 0/21
+
+> Próxima do caminho crítico: **spec 003 (pipeline ETL)** — desbloqueada, é o pré-requisito
+> do motor de alertas (004) e dos painéis (005/006).
+
+---
+
+## 4. O que já está pronto e como rodar
+
+Pré-requisitos: **Python 3.12+** e **[uv](https://docs.astral.sh/uv/)**. `uv sync` instala
+tudo (SQLAlchemy, Alembic, psycopg, FastAPI, pytest…). Os comandos abaixo usam `uv run`;
+com o venv ativo (`source .venv/bin/activate`), o prefixo é dispensável.
+
+### Fontes simuladas (spec 001)
+
+- `data/seeds/` — datasets das 4 fontes legadas (CSV, XLSX, JSON e SQLite), com
+  inconsistências propositais documentadas em `data/seeds/INCONSISTENCIAS.md`.
+  Para regenerar: `uv run python data/gerador_dados.py`.
+- `fake_api/` — API FastAPI que serve as multas:
+  `uv run uvicorn fake_api.main:app --port 8000` (endpoints em `fake_api/README.md`).
+
+![Evidência: endpoint /multas, datasets e testes](docs/checkpoints/img/evidencia_combinada.png)
+
+*Endpoint `/multas` retornando JSON (placas em minúsculas, CNH sintética — LGPD), datasets
+das 4 fontes em `data/seeds/`, 10 testes automatizados passando.*
+
+### Banco consolidado (spec 002)
+
+```bash
+uv run python -m db.init_db
+```
+
+Um comando, idempotente (pode rodar N vezes): aplica as migrations Alembic até `head` e
+semeia `limiar_config` a partir de `data/seeds/limiares_semente.json` — upsert que
+**preserva edições feitas ao vivo** no banco; para adotar novos valores do JSON num banco
+existente, `uv run python -m db.seed_limiares --sobrescrever`.
+
+- **Banco default**: SQLite em `db/frota.db`. Para Postgres, aponte `DATABASE_URL`
+  (ex.: `postgresql+psycopg://user:senha@localhost:5432/frota`) — mesmo esquema, zero
+  mudança de código (decisão D2).
+- **Testes**: `uv run pytest tests/test_db.py` — criação do zero, idempotência dupla,
+  seed espelha o JSON, chaves de upsert (positivo e negativo, ADR-004), introspecção LGPD.
+- **Roteiro completo de validação**: `specs/002-modelo-dados-banco/quickstart.md`.
+
+**Diagramas ER** (12 tabelas: 7 consolidadas + 4 staging + `log_qualidade`):
+
+![ER consolidadas](docs/modelagem/v1/diagrama_er_consolidadas.png)
+
+*Consolidadas e relacionamentos — placa canônica como PK de `veiculo` e FK dos eventos.*
+
+![ER staging](docs/modelagem/v1/diagrama_er_staging.png)
+
+*Staging (`stg_*`, uma por fonte, tipos frouxos) + `log_qualidade` — sem FKs por design.*
+
+---
+
+## 5. O fluxo de trabalho (gitflow)
 
 - `main` e `dev` são branches **permanentes** e **protegidas**: ninguém dá push direto nelas,
   force-push é bloqueado, e todo merge exige um Pull Request com **pelo menos 1 aprovação**.
@@ -101,13 +233,13 @@ git push -u origin feature/00X-nome-da-spec
 
 ---
 
-## 4. Como pegar uma spec
+## 6. Como pegar uma spec
 
 1. Abra `specs/README.md` e escolha uma spec ainda não assumida (veja a tabela de
    dependências — algumas só podem começar depois de outras estarem prontas).
 2. Leia o `spec.md` da pasta escolhida: ele tem as histórias de usuário, requisitos
    testáveis e critérios de sucesso. É tudo que você precisa para começar a implementar.
-3. Crie sua feature branch a partir de `dev` (seção 3).
+3. Crie sua feature branch a partir de `dev` (seção 4).
 
 A partir daqui, escolha o caminho que preferir — **os dois são igualmente válidos** e levam
 ao mesmo lugar (código + PR para `dev`):
@@ -138,7 +270,7 @@ Nenhum dos dois caminhos é obrigatório — misturar também é normal (ex.: um
 
 ---
 
-## 5. Regras que não podem ser quebradas
+## 7. Regras que não podem ser quebradas
 
 Resumo da constitution (`.specify/memory/constitution.md`) — leia o documento completo antes
 de tomar decisões de modelagem ou de escopo:
@@ -160,7 +292,7 @@ de tomar decisões de modelagem ou de escopo:
 
 ---
 
-## 6. Convenções de código
+## 8. Convenções de código
 
 - Idioma: português no código de domínio (tabelas, campos, variáveis de negócio) e na
   documentação.
@@ -171,7 +303,7 @@ de tomar decisões de modelagem ou de escopo:
 
 ---
 
-## 7. Dúvidas
+## 9. Dúvidas
 
 Se o `spec.md` da sua frente não responder, a ordem de consulta é: arquitetura técnica →
 kanban original → constitution → perguntar no time. Se encontrar uma decisão de arquitetura
