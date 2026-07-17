@@ -1,0 +1,81 @@
+---
+title: "Desafio 13 — Modelo de Dados: tabelas consolidadas (ER)"
+config:
+  theme: neutral
+---
+erDiagram
+    veiculo {
+        string placa PK "String(7) canonica ADR-001"
+        string tipo_veiculo "leve | ambulancia | caminhao"
+        string modelo "nullable"
+        int ano "nullable"
+        string secretaria "nullable"
+        int km_atual "default 0"
+        string fonte_origem
+    }
+
+    abastecimento {
+        int id PK
+        string placa FK
+        date data
+        decimal litros "Numeric(8,2) nullable"
+        decimal valor "Numeric(10,2) nullable"
+        int km_hodometro "ADR-002 nullable"
+        string condutor_pseudo "COND-NNN nullable"
+        string fonte_origem
+    }
+
+    manutencao {
+        int id PK
+        string placa FK
+        date data
+        string tipo "troca_oleo | filtros | pneus | revisao_geral"
+        string categoria "preventiva | corretiva"
+        int km_no_momento "nullable"
+        decimal valor "Numeric(10,2) nullable"
+        string fonte_origem
+    }
+
+    multa {
+        int id PK
+        string placa FK
+        date data
+        decimal valor "Numeric(10,2)"
+        string condutor_pseudo "COND-NNN nullable"
+        string situacao "pendente | paga"
+        string fonte_origem
+    }
+
+    licenciamento {
+        string placa PK, FK "1:1 com veiculo"
+        date vencimento "nullable"
+        string situacao "em_dia | vencido"
+        string fonte_origem
+    }
+
+    limiar_config {
+        int id PK
+        string tipo_veiculo "UQ com tipo_manutencao"
+        string tipo_manutencao
+        int limite_km
+        int limite_dias
+        int antecedencia_km
+        int antecedencia_dias
+    }
+
+    alerta {
+        int id PK
+        string placa FK
+        int limiar_id FK "NULL se dados_insuficientes"
+        string tipo_gatilho "km | tempo | dados_insuficientes"
+        datetime gerado_em
+        string situacao "ativo | resolvido"
+        string detalhe "o que falta — nullable"
+    }
+
+    veiculo ||--o{ abastecimento : "abastece"
+    veiculo ||--o{ manutencao : "passa por"
+    veiculo ||--o{ multa : "recebe"
+    veiculo ||--o| licenciamento : "licencia (1:1)"
+    veiculo ||--o{ alerta : "gera"
+    limiar_config |o--o{ alerta : "parametriza"

@@ -52,8 +52,8 @@ class Veiculo(Base):
 class Abastecimento(Base):
     __tablename__ = "abastecimento"
     __table_args__ = (
-        # km NULL não colide (NULL≠NULL) — decisão R7/ADR-004: dois abastecimentos sem
-        # km no mesmo dia podem ser eventos reais; dedup fina é do pipeline (spec 003)
+        # km NULL não colide (NULL≠NULL) — decisão R7/ADR-002: dois abastecimentos sem
+        # km no mesmo dia podem ser eventos reais; 
         UniqueConstraint("placa", "data", "km_hodometro", name="placa_data_km"),
         Index("ix_abastecimento_placa_data", "placa", "data"),
     )
@@ -92,8 +92,7 @@ class Multa(Base):
     __tablename__ = "multa"
     __table_args__ = (
         CheckConstraint("situacao IN ('pendente','paga')", name="situacao"),
-        # chave de upsert por expressão (ADR-004): coalesce('') faz multas sem condutor
-        # colidirem também — o contrato promete a 2ª duplicata em log_qualidade
+        # evita a colisao de mesma multa sem condutor (Null) (duplicata)
         Index(
             "ux_multa_upsert",
             "placa", "data", "valor", text("coalesce(condutor_pseudo, '')"),
@@ -162,7 +161,7 @@ class Alerta(Base):
     tipo_gatilho: Mapped[str] = mapped_column(String, nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     situacao: Mapped[str] = mapped_column(String, nullable=False, default="ativo", server_default="ativo")
-    detalhe: Mapped[Optional[str]] = mapped_column(String)  # "o que falta" (spec 004 FR-005)
+    detalhe: Mapped[Optional[str]] = mapped_column(String)  
  
  # ---------- Staging (tudo TEXT nullable; sem FK/CHECK/UNIQUE) ----------
 

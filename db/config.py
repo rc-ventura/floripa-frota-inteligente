@@ -23,7 +23,7 @@ def get_engine():
                 p.parent.mkdir(parents=True, exist_ok=True)
         _engine = create_engine(url, future=True)
         if _engine.dialect.name == "sqlite":
-            # SQLite não aplica FKs por padrão — as consolidadas dependem delas
+            # SQLite não aplica FKs por padrão 
             @event.listens_for(_engine, "connect")
             def _liga_fk(conexao, _registro):
                 conexao.execute("PRAGMA foreign_keys=ON")
