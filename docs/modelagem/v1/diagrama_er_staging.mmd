@@ -1,0 +1,61 @@
+---
+title: "Desafio 13 — Modelo de Dados: staging e log de qualidade (ER)"
+config:
+  theme: neutral
+---
+erDiagram
+    stg_abastecimento {
+        int id PK
+        datetime carga_em "carimbo de carga"
+        text fonte_origem
+        text placa "bruto nullable"
+        text data "bruto nullable"
+        text litros "bruto nullable"
+        text valor "bruto nullable"
+        text condutor "bruto nullable"
+        text km "bruto nullable"
+    }
+
+    stg_multas {
+        int id PK
+        datetime carga_em "carimbo de carga"
+        text fonte_origem
+        text placa "bruto nullable"
+        text data "bruto nullable"
+        text gravidade "bruto nullable"
+        text valor "bruto nullable"
+        text condutor "bruto nullable"
+        text cnh "sintetica R5 nullable"
+        text situacao "bruto nullable"
+        text codigo_infracao "bruto nullable"
+    }
+
+    stg_manutencao {
+        int id PK
+        datetime carga_em "carimbo de carga"
+        text fonte_origem
+        text placa "bruto nullable"
+        text data "bruto nullable"
+        text tipo "bruto nullable"
+        text categoria "bruto nullable"
+        text km_no_momento "bruto nullable"
+        text valor "bruto nullable"
+        text aba_origem "bruto nullable"
+    }
+
+    stg_licenciamento {
+        int id PK
+        datetime carga_em "carimbo de carga"
+        text fonte_origem
+        text placa "bruto nullable"
+        text vencimento "bruto nullable"
+        text situacao "bruto nullable"
+    }
+
+    log_qualidade {
+        int id PK
+        string fonte
+        text registro_bruto
+        string motivo_rejeicao "placa_invalida | data_ausente | duplicado ..."
+        datetime carga_em
+    }

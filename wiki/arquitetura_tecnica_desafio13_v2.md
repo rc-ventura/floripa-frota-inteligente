@@ -127,6 +127,7 @@ erDiagram
         int ano
         string secretaria
         int km_atual
+        string fonte_origem "rastreabilidade — constitution II (adendo spec 002)"
     }
     ABASTECIMENTO {
         int id PK
@@ -175,10 +176,11 @@ erDiagram
     ALERTA {
         int id PK
         string placa FK
-        int limiar_id FK
-        string tipo_gatilho "km ou tempo"
+        int limiar_id FK "nullable — NULL em dados_insuficientes (adendo spec 002)"
+        string tipo_gatilho "km, tempo ou dados_insuficientes"
         datetime gerado_em
         string situacao "ativo, resolvido"
+        string detalhe "o que falta, em dados_insuficientes (adendo spec 002)"
     }
 ```
 
@@ -187,6 +189,7 @@ Tabelas de apoio (fora do diagrama para legibilidade): `stg_*` (uma por fonte, e
 **Decisões de modelagem:**
 - `LIMIAR_CONFIG` é uma **tabela, não constantes no código** — permite alterar um limiar ao vivo na demo e ver o alerta reagir, além de atender a exigência de parametrização por tipo de veículo/manutenção (briefing 4.3).
 - `km_hodometro` no `ABASTECIMENTO` (novo na v2 — ADR-002): a leitura do odômetro em cada abastecimento é a **série temporal de km** do veículo. É ela que torna calculável o km rodado por período (custo/km e consumo km/L no painel de custos, spec 006) e que alimenta a atualização de `veiculo.km_atual` pelo pipeline. Nullable: registro sem km continua válido para custos; km não confiável é tratado pelo motor (`dados_insuficientes`). Espelha a prática real dos sistemas de cartão-combustível de frota, que registram hodômetro a cada abastecimento.
+- Adendo da spec 002 (16/07/2026): `fonte_origem` em `VEICULO` (a constitution II exige o campo em **toda** consolidada — o cadastro emerge das fontes na reconciliação; o diagrama v1 listava só os campos de domínio) e, em `ALERTA`, `limiar_id` nullable + `detalhe` (o gatilho `dados_insuficientes` da seção 5.1 não tem limiar associado e precisa registrar "o que falta" — spec 004 FR-005). Aplicações de exigências já ratificadas, não decisões novas; racional em `specs/002-modelo-dados-banco/research.md` R6/R8.
 - `categoria` na `MANUTENCAO` (novo na v2 — ADR-003 item 7): distingue preventiva de corretiva, como toda planilha real de manutenção de frota. É o que permite ao painel de custos demonstrar, nos próprios dados, o benchmark "corretiva custa 3–5× a preventiva" que fundamenta a análise de impacto econômico (Fase 4). Limiares seguem por tipo de veículo (briefing 4.3); planos por modelo de fabricante ficam como evolução — coluna adicional em `LIMIAR_CONFIG` com regra "mais específico vence" (mudança de dados, não de código).
 - `condutor_pseudo` implementa a pseudonimização LGPD na própria modelagem. Uma tabela de-para (`condutor_pseudo → matrícula real`) existiria em produção com acesso restrito; na PoC ela simplesmente não existe.
 - `fonte_origem` em toda tabela consolidada materializa a auditabilidade: o painel pode exibir "este dado veio da carga X da fonte Y".
@@ -348,7 +351,7 @@ Divisão natural de trabalho da equipe: **dados** (`data/`, `pipeline/`), **back
 
 | Versão | Data | Mudança |
 |---|---|---|
-| v2.0 | 14/07/2026 (adendo 15/07) | **Placa canônica em dois formatos** (antigo `AAA9999` + Mercosul `AAA9A99`; §2, §3.1, D7) — [ADR-001](../docs/decisoes/ADR-001-placa-canonica-dois-formatos.md). **`km_hodometro` persistido no `ABASTECIMENTO` consolidado** (série temporal de km para custo/km por período na spec 006; §4) — [ADR-002](../docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md). **`categoria` (preventiva/corretiva) na `MANUTENCAO`** (§4) e calibração de realismo do gerador — [ADR-003](../docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md). |
+| v2.0 | 14/07/2026 (adendos 15–16/07) | **Placa canônica em dois formatos** (antigo `AAA9999` + Mercosul `AAA9A99`; §2, §3.1, D7) — [ADR-001](../docs/decisoes/ADR-001-placa-canonica-dois-formatos.md). **`km_hodometro` persistido no `ABASTECIMENTO` consolidado** (série temporal de km para custo/km por período na spec 006; §4) — [ADR-002](../docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md). **`categoria` (preventiva/corretiva) na `MANUTENCAO`** (§4) e calibração de realismo do gerador — [ADR-003](../docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md). **Adendo 16/07 (spec 002)**: `fonte_origem` em VEICULO; `limiar_id` nullable + `detalhe` em ALERTA (§4 — research R6/R8 da spec 002). |
 | v1.0 | 12/07/2026 | Versão inicial (arquivo `arquitetura_tecnica_desafio13_v1.md`, preservado) |
 
 *Convenção de versionamento: `arquitetura_tecnica_desafio13_vN.md`, seguindo o mesmo padrão do roadmap. Alterações de decisão arquitetural (tabela da seção 7) devem incrementar a versão e registrar a mudança.*
