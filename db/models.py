@@ -52,7 +52,9 @@ class Veiculo(Base):
 class Abastecimento(Base):
     __tablename__ = "abastecimento"
     __table_args__ = (
-        UniqueConstraint("placa", "data", "km_hodometro", name="placa_data_km"), # rejeota dois abastecimentos com a msm placa na msm data
+        # km NULL não colide (NULL≠NULL) — decisão R7/ADR-004: dois abastecimentos sem
+        # km no mesmo dia podem ser eventos reais; dedup fina é do pipeline (spec 003)
+        UniqueConstraint("placa", "data", "km_hodometro", name="placa_data_km"),
         Index("ix_abastecimento_placa_data", "placa", "data"),
     )
     
@@ -90,7 +92,13 @@ class Multa(Base):
     __tablename__ = "multa"
     __table_args__ = (
         CheckConstraint("situacao IN ('pendente','paga')", name="situacao"),
-        UniqueConstraint("placa", "data", "valor", "condutor_pseudo", name="placa_data_valor_condutor"),
+        # chave de upsert por expressão (ADR-004): coalesce('') faz multas sem condutor
+        # colidirem também — o contrato promete a 2ª duplicata em log_qualidade
+        Index(
+            "ux_multa_upsert",
+            "placa", "data", "valor", text("coalesce(condutor_pseudo, '')"),
+            unique=True,
+        ),
         Index("ix_multa_placa_data", "placa", "data"),
     )
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

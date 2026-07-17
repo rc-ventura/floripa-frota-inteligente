@@ -17,6 +17,7 @@ import db.config
 import db.init_db
 import db.seed_limiares
 from db.models import (
+    Abastecimento,
     Alerta,
     LimiarConfig,
     Manutencao,
@@ -178,6 +179,88 @@ def test_alerta_ativo_unico(sessao):
     sessao.add(alerta(gatilho="dados_insuficientes", limiar=None))
     sessao.commit()
     sessao.add(alerta(gatilho="dados_insuficientes", limiar=None))
+    with pytest.raises(IntegrityError):
+        sessao.commit()
+    sessao.rollback()
+
+
+def test_chaves_upsert_consolidadas(sessao):
+    """Ciclo 1 da revisão SDD: chaves de upsert — positivo E invariante negativo com NULL.
+
+    - manutencao (placa, data, tipo): colunas NOT NULL — duplicata sempre colide.
+    - abastecimento: km NULL NÃO colide (research R7 — dois abastecimentos sem km no
+      mesmo dia podem ser eventos reais; dedup fina é do pipeline, spec 003).
+    - multa: condutor NULL TAMBÉM colide (ux_multa_upsert com coalesce, ADR-004) —
+      o contrato promete a 2ª duplicata em log_qualidade, com ou sem condutor.
+    """
+    sessao.add(_veiculo("ABC1234"))
+    sessao.commit()
+
+    # manutencao — chave toda NOT NULL: duplicata colide
+    def manut():
+        return Manutencao(
+            placa="ABC1234",
+            data=date(2026, 7, 1),
+            tipo="troca_oleo",
+            categoria="preventiva",
+            fonte_origem="teste",
+        )
+
+    sessao.add(manut())
+    sessao.commit()
+    sessao.add(manut())
+    with pytest.raises(IntegrityError):
+        sessao.commit()
+    sessao.rollback()
+
+    # abastecimento — chave completa colide…
+    def abast(km):
+        return Abastecimento(
+            placa="ABC1234", data=date(2026, 7, 2), km_hodometro=km, fonte_origem="teste"
+        )
+
+    sessao.add(abast(1000))
+    sessao.commit()
+    sessao.add(abast(1000))
+    with pytest.raises(IntegrityError):
+        sessao.commit()
+    sessao.rollback()
+
+    # …mas km NULL não colide: comportamento CONTRATADO (R7), não acidente
+    sessao.add(abast(None))
+    sessao.commit()
+    sessao.add(abast(None))
+    sessao.commit()
+    duplicados = sessao.execute(
+        select(Abastecimento).where(
+            Abastecimento.data == date(2026, 7, 2),
+            Abastecimento.km_hodometro.is_(None),
+        )
+    ).scalars().all()
+    assert len(duplicados) == 2, "NULL-km deve inserir (dedup fina é do pipeline)"
+
+    # multa — chave completa colide…
+    def multa(condutor):
+        return Multa(
+            placa="ABC1234",
+            data=date(2026, 7, 3),
+            valor=195,
+            condutor_pseudo=condutor,
+            situacao="pendente",
+            fonte_origem="teste",
+        )
+
+    sessao.add(multa("COND-001"))
+    sessao.commit()
+    sessao.add(multa("COND-001"))
+    with pytest.raises(IntegrityError):
+        sessao.commit()
+    sessao.rollback()
+
+    # …e condutor NULL também colide (coalesce em ux_multa_upsert)
+    sessao.add(multa(None))
+    sessao.commit()
+    sessao.add(multa(None))
     with pytest.raises(IntegrityError):
         sessao.commit()
     sessao.rollback()
