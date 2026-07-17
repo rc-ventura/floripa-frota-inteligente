@@ -10,7 +10,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pytest
-from sqlalchemy import inspect, select
+from sqlalchemy import inspect, select, text as sql_text
 from sqlalchemy.exc import IntegrityError
 
 import db.config
@@ -72,6 +72,16 @@ def test_criacao_do_zero(banco):
     assert TABELAS_ESPERADAS <= tabelas, f"faltam: {TABELAS_ESPERADAS - tabelas}"
     assert "alembic_version" in tabelas, "criação deve ser versionada (Alembic)"
     assert len(TABELAS_ESPERADAS) == 12
+
+    # índices de expressão não são refletidos pelo inspector em SQLite (mesma limitação
+    # do autogenerate, research R6) — confere direto no catálogo que a migration os criou
+    if banco.dialect.name == "sqlite":
+        sql_indices = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='multa'"
+    else:
+        sql_indices = "SELECT indexname FROM pg_indexes WHERE tablename='multa'"
+    with banco.connect() as con:
+        indices_multa = {r[0] for r in con.execute(sql_text(sql_indices))}
+    assert {"ux_multa_upsert", "ix_multa_placa_data"} <= indices_multa  # ADR-004
 
     colunas = {t: {c["name"] for c in insp.get_columns(t)} for t in tabelas}
     assert "km_hodometro" in colunas["abastecimento"]  # ADR-002
