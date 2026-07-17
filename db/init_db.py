@@ -13,7 +13,8 @@ def main():
     engine = get_engine()
     seed(engine)
     names = sorted(inspect(engine).get_table_names())
-    # senha nunca vai para o console (URL de demo Postgres a embute)
+    
+    # senha nunca vai para o console 
     url_segura = make_url(get_url()).render_as_string(hide_password=True)
     print(f"OK [{url_segura}] {len(names)} tabelas\n " + "\n ".join(names))
 
