@@ -120,10 +120,11 @@ Como apresentador da demo, preciso que o painel se atualize sozinho (~30s) para 
 ## Assumptions
 
 - "Urgência" combina: vencido > em janela de antecedência (atenção) > ok; empates ordenados por data/km mais próximos do limite — regra final documentada junto ao painel.
+- Os dados simulados garantem os três estados do semáforo já na primeira carga: a spec 001 (FR-010, ADR-003) gera ≥2 licenciamentos vencidos e ≥2 vencendo em ≤7 dias, fora dos 2 veículos do cenário de alertas — a tela inicial da demo nunca nasce monocromática.
 - A ação de "resolver" alerta pelo painel é desejável, mas pode ser simplificada na PoC (ver assumption equivalente na spec 004).
 - Simplicidade sobre sofisticação (briefing 4.2): tabelas e semáforos claros valem mais que gráficos nesta parte; gráficos concentram-se na spec 006.
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 6 e 10)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 6 e 10)
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 3 t1–t6)

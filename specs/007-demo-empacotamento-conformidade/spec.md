@@ -95,10 +95,10 @@ Como equipe, precisamos do discurso frente ao mercado: solução baseada em font
 ### Functional Requirements
 
 - **FR-001**: A aplicação completa MUST subir em máquina limpa com um único comando, do repositório clonado ao painel acessível com ciclo agendado rodando.
-- **FR-002**: MUST existir procedimento de reset que devolve o ambiente ao estado inicial da demo (dados seeds, sem alertas de ensaios anteriores).
+- **FR-002**: MUST existir procedimento de reset que devolve o ambiente ao estado inicial da demo (dados seeds, sem alertas de ensaios anteriores). O reset MUST regenerar os seeds com a **data-âncora do dia da apresentação** (`--data-ancora`, spec 001 FR-006) — sem isso o cenário determinístico se desloca no tempo (o veículo B estoura o limite de 180 dias e os licenciamentos "vencendo" já venceram).
 - **FR-003**: O documento de conformidade MUST cobrir: mapeamento de campos com dado pessoal (Fase 0 t5), base legal por campo, pseudonimização, tensão LGPD × LAI e sua resolução, política de retenção e referência ao art. 75 §7º.
 - **FR-004**: A análise de impacto econômico MUST aplicar benchmarks citados (corretiva 3–5× preventiva; redução 20–30%) aos custos da frota simulada, com memória de cálculo.
-- **FR-005**: O roteiro da demo MUST estar escrito passo a passo, ensaiado ≥3 vezes com ciclo real e cronometrado.
+- **FR-005**: O roteiro da demo MUST estar escrito passo a passo, ensaiado ≥3 vezes com ciclo real e cronometrado; o primeiro passo do preparo é o reset com a data-âncora do dia (FR-002).
 - **FR-006**: MUST existir vídeo gravado do roteiro completo (depósito do CSV → alerta no painel) como plano B.
 - **FR-007**: O material de pitch MUST registrar o posicionamento de mercado definido no kanban (sem hardware, baixo custo, setor público).
 
@@ -125,5 +125,5 @@ Como equipe, precisamos do discurso frente ao mercado: solução baseada em font
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 7-D6, 8 e 10)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 7-D6, 8 e 10)
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 0 t5, Fase 4 t1–t6)

@@ -23,7 +23,7 @@ Como membro da equipe, preciso subir o banco completo (staging, consolidadas, co
 **Acceptance Scenarios**:
 
 1. **Given** um ambiente sem banco, **When** o esquema é criado pelo mecanismo automatizado, **Then** existem as tabelas consolidadas (VEICULO, ABASTECIMENTO, MANUTENCAO, MULTA, LICENCIAMENTO, LIMIAR_CONFIG, ALERTA), uma staging por fonte (`stg_*`) e `log_qualidade`.
-2. **Given** o esquema criado, **When** um registro consolidado é inserido, **Then** a placa segue o formato canônico `AAA9999` e os relacionamentos do ERD (veículo ↔ eventos) são respeitados.
+2. **Given** o esquema criado, **When** um registro consolidado é inserido, **Then** a placa segue o formato canônico (maiúsculas, sem hífen; antigo `AAA9999` ou Mercosul `AAA9A99` — regex `^[A-Z]{3}\d[A-Z\d]\d{2}$`, ADR-001) e os relacionamentos do ERD (veículo ↔ eventos) são respeitados.
 
 ---
 
@@ -37,7 +37,7 @@ Como apresentador da demo, preciso alterar um limiar de manutenção com o siste
 
 **Acceptance Scenarios**:
 
-1. **Given** o banco recém-criado, **When** consultada LIMIAR_CONFIG, **Then** existem limiares para ≥2 tipos de veículo × 2–3 tipos de manutenção, com limite de km, limite de dias e antecedências preenchidos.
+1. **Given** o banco recém-criado, **When** consultada LIMIAR_CONFIG, **Then** existem as 9 linhas da tabela-semente da spec 001 (≥2 tipos de veículo × ≥2 tipos de manutenção), com limite de km, limite de dias e antecedências preenchidos.
 2. **Given** o sistema em execução, **When** um limiar é alterado diretamente na configuração, **Then** nenhuma alteração de código ou reinicialização é necessária para o novo valor valer.
 
 ---
@@ -65,10 +65,10 @@ Como responsável por conformidade, preciso que toda tabela consolidada carregue
 
 ### Functional Requirements
 
-- **FR-001**: O esquema MUST materializar as 8 entidades do ERD da arquitetura (seção 4), com placa canônica `AAA9999` como chave natural de VEICULO e chave estrangeira dos eventos.
+- **FR-001**: O esquema MUST materializar as 7 entidades do diagrama do ERD da arquitetura v2 (seção 4 — inclui `km_hodometro` nullable no ABASTECIMENTO, ADR-002, e `categoria` na MANUTENCAO, ADR-003) mais as tabelas de apoio listadas fora do diagrama (`stg_*` por fonte e `log_qualidade`), com placa canônica (formatos `AAA9999` e `AAA9A99` — ADR-001) como chave natural de VEICULO e chave estrangeira dos eventos.
 - **FR-002**: MUST existir uma tabela de staging por fonte (`stg_*`), espelhando o formato bruto, com carimbo de data/hora da carga e identificação do arquivo/endpoint de origem.
 - **FR-003**: MUST existir `log_qualidade` (fonte, registro bruto, motivo da rejeição, momento da carga) para receber registros rejeitados pelo pipeline.
-- **FR-004**: LIMIAR_CONFIG MUST ser tabela de dados editável em tempo de execução, semeada com ≥2 tipos de veículo × 2–3 tipos de manutenção (limite_km, limite_dias, antecedencia_km, antecedencia_dias) — valores combinados com a spec 001 para o cenário da demo.
+- **FR-004**: LIMIAR_CONFIG MUST ser tabela de dados editável em tempo de execução, semeada com ≥2 tipos de veículo × ≥2 tipos de manutenção (limite_km, limite_dias, antecedencia_km, antecedencia_dias) — exatamente a tabela-semente de 9 linhas da spec 001 (`data/seeds/limiares_semente.json`, fonte única; 3 tipos de veículo × até 4 manutenções).
 - **FR-005**: ALERTA MUST suportar histórico permanente (situação `ativo`/`resolvido`, nunca apagado) e vínculo ao limiar que o parametrizou.
 - **FR-006**: Toda tabela consolidada MUST carregar `fonte_origem`; condutores MUST existir apenas como `condutor_pseudo` (sem tabela de-para na PoC).
 - **FR-007**: A criação do esquema MUST ser automatizada e reproduzível (versionada via migrations), executável em um comando a partir do repositório limpo.
@@ -76,7 +76,7 @@ Como responsável por conformidade, preciso que toda tabela consolidada carregue
 ### Key Entities
 
 - **VEICULO**: placa canônica (PK), tipo, modelo, ano, secretaria, km atual.
-- **ABASTECIMENTO / MANUTENCAO / MULTA**: eventos por placa, com valor, data, campos específicos e `fonte_origem`.
+- **ABASTECIMENTO / MANUTENCAO / MULTA**: eventos por placa, com valor, data, campos específicos e `fonte_origem`. ABASTECIMENTO inclui `km_hodometro` (int, nullable — leitura do odômetro no abastecimento; série temporal de km usada pelo painel de custos, ADR-002). MANUTENCAO inclui `categoria` (`preventiva` | `corretiva` — habilita o comparativo corretiva×preventiva do painel de custos, ADR-003 item 7).
 - **LICENCIAMENTO**: situação e vencimento por placa (1:1).
 - **LIMIAR_CONFIG**: parametrização de limites por tipo de veículo × tipo de manutenção.
 - **ALERTA**: notificação gerada, com gatilho (km/tempo), momento e situação.
@@ -94,10 +94,12 @@ Como responsável por conformidade, preciso que toda tabela consolidada carregue
 ## Assumptions
 
 - A camada de acesso permite começar em banco local leve e trocar para o banco da demo sem reescrever código (decisão D2 da arquitetura); o esquema é o mesmo nos dois.
-- Valores iniciais de limiar seguem práticas comuns de frota (ex.: troca de óleo ~10.000 km / 180 dias) e serão calibrados junto com a spec 001 para o cenário determinístico.
+- Valores iniciais de limiar são os da tabela-semente de 9 linhas definida na spec 001 (Clarifications 2026-07-14, atualizada 2026-07-15): `troca_oleo`/`leve` = 5.000 km / 180 dias (uso severo urbano — justificativa no ADR-003), `revisao_geral` leve/ambulância = 10.000 km / 365 dias (plano padrão de fabricante — ADR-003 item 9), `troca_oleo`/`caminhao` = 10.000 km, etc. A migration de seed usa exatamente esses valores literais (`data/seeds/limiares_semente.json` é o espelho).
+- Evolução documentada (fora do escopo da PoC): planos de manutenção por **modelo/marca de fabricante** entram como coluna adicional em LIMIAR_CONFIG (`modelo`, nullable) com regra de resolução "mais específico vence, senão cai no tipo de veículo" — mudança de dados, não de código (constitution V; ADR-003 item 9). O briefing (4.3) pede parametrização por tipo, que é o que a PoC entrega.
 - Constraints rígidas demais no staging são indesejadas: staging aceita dado bruto sujo; a qualidade é imposta na transformação (spec 003), não na entrada do staging.
 
 ## Referências
 
-- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v1.md` (seções 4, 7-D2/D7/D8 e 10)
+- Arquitetura: `wiki/arquitetura_tecnica_desafio13_v2.md` (seções 4, 7-D2/D7/D8 e 10)
+- ADRs: `docs/decisoes/ADR-001-placa-canonica-dois-formatos.md` · `docs/decisoes/ADR-002-persistir-km-hodometro-abastecimento.md` · `docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md`
 - Kanban: `wiki/kanban_tasks_desafio13_frota_municipal.md` (Fase 0 t3–t4, Fase 1 t3)
