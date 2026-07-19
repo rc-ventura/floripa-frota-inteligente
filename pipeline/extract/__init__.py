@@ -31,3 +31,14 @@ def fonte_ja_vista(engine: Engine, tabela: str, hash12: str) -> bool:
 def novo_lote() -> datetime:
     """Carimbo de carga único por fonte/ciclo (R2). Timestamp do início da extração."""
     return datetime.now()
+
+
+def to_text(v) -> str | None:
+    """Converte valor bruto (str, int, float, numpy, None) para TEXT do staging.
+    None → None; float inteiro (serial Excel, km) → sem '.0'; demais → str()."""
+
+    if v is None:
+        return None
+    if isinstance(v, float) and v.is_integer():
+        return str(int(v))
+    return str(v)

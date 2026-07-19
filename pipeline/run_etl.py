@@ -2,10 +2,21 @@ import logging
 import sys
  
 from db.config import get_engine
-from pipeline.extract import novo_lote
+from pipeline.extract.abastecimento import extrair_abastecimento
+from pipeline.extract.licenciamento import extrair_licenciamento
+from pipeline.extract.manutencao import extrair_manutencao
+from pipeline.extract.multas import extrair_multas
 from pipeline.load.cadastro import carregar_cadastro
  
 logger = logging.getLogger("pipeline")
+
+# fontes de eventos em sequência fixa (
+_FONTES_EVENTOS = [
+    ("abastecimento", extrair_abastecimento),
+    ("multas", extrair_multas),
+    ("manutencao", extrair_manutencao),
+    ("licenciamento", extrair_licenciamento),
+]
 
 def executar_ciclo() -> dict:
     """E→T→L das 4 fontes + cadastro. Cadastro primeiro (FK + tipo_veiculo NOT NULL — R4);
@@ -19,35 +30,12 @@ def executar_ciclo() -> dict:
     resumo["cadastro"] = carregar_cadastro(engine)
 
     # 4 fontes de eventos. Estágios Extract/Transform/Load são ligados em T015/T020.
-    for nome, processar in [
-       ("abastecimento", _processar_abastecimento),
-        ("multas", _processar_multas),
-        ("manutencao", _processar_manutencao),
-        ("licenciamento", _processar_licenciamento),
-    ]:
-        carga_em = novo_lote()
-        resumo[nome] = processar(engine, carga_em)
+    for nome, extrair in _FONTES_EVENTOS:
+        resumo[nome] = extrair(engine)
+
     return resumo
 
 
-def _resumo_zero(situacao: str = "sem_novidade") -> dict:
-    return {"situacao": situacao, "extraidos": 0, "consolidados": 0, "rejeitados": 0}
- 
-
-# --- Stubs das 4 fontes (substituídos em T011–T014 · T015 · T020) ---
- 
-def _processar_abastecimento(engine, carga_em) -> dict:
-    return _resumo_zero()  # TODO T011/T015/T020
- 
-def _processar_multas(engine, carga_em) -> dict:
-    return _resumo_zero()  # TODO T012/T015/T020
- 
-def _processar_manutencao(engine, carga_em) -> dict:
-    return _resumo_zero()  # TODO T013/T015/T020
- 
-def _processar_licenciamento(engine, carga_em) -> dict:
-    return _resumo_zero()  # TODO T014/T015/T020
-    
 
 def _imprimir_resumo(resumo: dict) -> None:
     for fonte, r in resumo.items():
