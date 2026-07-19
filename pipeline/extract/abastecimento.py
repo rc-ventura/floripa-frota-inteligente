@@ -39,4 +39,5 @@ def extrair_abastecimento(engine: Engine) -> dict:
             conn.execute(insert(StgAbastecimento.__table__), linhas)
 
     situacao = "ok" if arquivos_novos > 0 else "sem_novidade"
-    return {"situacao": situacao, "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0}
+    return {"situacao": situacao, "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0,
+            "carga_em": carga_em}

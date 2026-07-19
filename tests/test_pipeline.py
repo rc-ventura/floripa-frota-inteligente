@@ -7,8 +7,11 @@ tipo/categoria catalogadas em data/seeds/INCONSISTENCIAS.md.
 T016: aceitação da US1 — 1 ciclo popula os 4 stagings com bruto intacto + carimbo
 de carga + fonte_origem com hash (R1); 2º ciclo sem novidade não acrescenta nada.
 
-As demais fases (US2–US4) acrescentam seus testes de aceitação aqui (T021, T022,
-T024, T025, T027).
+T021/T022: aceitação da US2 (SC-002) — inconsistências da spec 001 normalizadas ou
+rejeitadas com motivo; conservação por fonte; lote parcialmente corrompido nunca é
+tudo-ou-nada; cnh sintética jamais chega a uma consolidada (FR-011).
+
+As demais fases (US3–US4) acrescentam seus testes de aceitação aqui (T024, T025, T027).
 """
 
 import re
@@ -184,7 +187,7 @@ VOCABULARIO_SITUACAO = {"ok", "sem_novidade", "indisponivel"}
 
 
 @pytest.fixture
-def ambiente_us1(tmp_path, monkeypatch):
+def ambiente_pipeline(tmp_path, monkeypatch):
     """Banco limpo + inbox isolado + API de multas simulada (sem servidor):
     monkeypatch de httpx.get devolvendo o multas.json real da fake_api."""
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path}/frota.db")
@@ -211,10 +214,10 @@ def _contagens_staging(engine) -> dict[str, int]:
         return {t: c.execute(sql_text(f"SELECT COUNT(*) FROM {t}")).scalar() for t in STAGING}
 
 
-def test_us1_ciclo_popula_staging_bruto_com_rastreabilidade(ambiente_us1):
+def test_us1_ciclo_popula_staging_bruto_com_rastreabilidade(ambiente_pipeline):
     from pipeline.run_etl import executar_ciclo
 
-    engine = ambiente_us1
+    engine = ambiente_pipeline
     resumo = executar_ciclo()
 
     # resumo respeita o contrato (chaves e vocabulário — ciclo_pipeline.md § Retorno)
@@ -260,10 +263,10 @@ def test_us1_ciclo_popula_staging_bruto_com_rastreabilidade(ambiente_us1):
         assert duplicadas > 0
 
 
-def test_us1_segundo_ciclo_sem_novidade_nao_acrescenta_nada(ambiente_us1):
+def test_us1_segundo_ciclo_sem_novidade_nao_acrescenta_nada(ambiente_pipeline):
     from pipeline.run_etl import executar_ciclo
 
-    engine = ambiente_us1
+    engine = ambiente_pipeline
     executar_ciclo()
     antes = _contagens_staging(engine)
 
@@ -273,3 +276,119 @@ def test_us1_segundo_ciclo_sem_novidade_nao_acrescenta_nada(ambiente_us1):
     for fonte, r in resumo2.items():
         assert r["situacao"] == "sem_novidade", (fonte, r)
         assert r["extraidos"] == 0, (fonte, r)
+
+
+# ---------- T021/T022: aceitação US2 — qualidade (SC-002, FR-011) ----------
+
+CONSOLIDADAS_EVENTO = ["abastecimento", "multa", "manutencao", "licenciamento"]
+MOTIVOS_R7 = {
+    "placa_invalida", "data_ausente", "data_invalida", "valor_invalido",
+    "tipo_desconhecido", "categoria_desconhecida", "situacao_desconhecida",
+    "duplicado", "veiculo_desconhecido", "fonte_indisponivel",
+}
+
+
+def test_us2_sc002_inconsistencias_normalizadas_ou_rejeitadas(ambiente_pipeline):
+    """Ciclo completo sobre os seeds: consolidado limpo + rejeições com motivo,
+    sem perda silenciosa (conservação: extraidos == consolidados + rejeitados)."""
+    from pipeline.run_etl import executar_ciclo
+
+    engine = ambiente_pipeline
+    resumo = executar_ciclo()
+
+    # conservação por fonte no 1º ciclo — nenhuma linha some sem rastro (SC-002)
+    for fonte in ["abastecimento", "multas", "manutencao", "licenciamento"]:
+        r = resumo[fonte]
+        assert r["extraidos"] == r["consolidados"] + r["rejeitados"], (fonte, r)
+
+    with engine.connect() as c:
+        # placas 100% canônicas — hífen, minúscula e espaço reconciliados (US2.1)
+        for t in CONSOLIDADAS_EVENTO:
+            assert c.execute(sql_text(
+                f"SELECT COUNT(*) FROM {t} WHERE placa GLOB '*[a-z-]*'")).scalar() == 0, t
+
+        # datas em tipo DATE (ISO) e decimais numéricos (US2.2/US2.3)
+        assert c.execute(sql_text(
+            "SELECT COUNT(*) FROM abastecimento WHERE data NOT GLOB"
+            " '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'")).scalar() == 0
+        assert c.execute(sql_text(
+            "SELECT COUNT(*) FROM abastecimento WHERE litros LIKE '%,%'")).scalar() == 0
+
+        # vocabulários dentro dos CHECKs do banco (US2.4)
+        tipos = {r[0] for r in c.execute(sql_text("SELECT DISTINCT tipo FROM manutencao"))}
+        cats = {r[0] for r in c.execute(sql_text("SELECT DISTINCT categoria FROM manutencao"))}
+        assert tipos <= {"troca_oleo", "filtros", "pneus", "revisao_geral"}, tipos
+        assert cats <= {"preventiva", "corretiva"}, cats
+
+        # licenciamento deduplicado por placa (vencimento mais recente vence — US2.5)
+        n_stg = c.execute(sql_text("SELECT COUNT(*) FROM stg_licenciamento")).scalar()
+        n_con = c.execute(sql_text("SELECT COUNT(*) FROM licenciamento")).scalar()
+        n_dup = c.execute(sql_text(
+            "SELECT COUNT(*) FROM log_qualidade"
+            " WHERE fonte='licenciamento' AND motivo_rejeicao='duplicado'")).scalar()
+        assert n_con < n_stg and n_stg == n_con + n_dup, (n_stg, n_con, n_dup)
+
+        # todos os motivos pertencem ao vocabulário fechado (R7); bruto preservado
+        motivos = {r[0] for r in c.execute(sql_text("SELECT DISTINCT motivo_rejeicao FROM log_qualidade"))}
+        assert motivos <= MOTIVOS_R7, motivos
+        assert c.execute(sql_text(
+            "SELECT COUNT(*) FROM log_qualidade"
+            " WHERE registro_bruto IS NULL OR registro_bruto = ''")).scalar() == 0
+
+        # km do hodômetro persistido na consolidada (ADR-002)
+        assert c.execute(sql_text(
+            "SELECT COUNT(*) FROM abastecimento WHERE km_hodometro IS NOT NULL")).scalar() > 0
+
+
+def test_us2_lote_parcialmente_corrompido_nunca_tudo_ou_nada(ambiente_pipeline):
+    """Edge case: linhas válidas entram, inválidas vão ao log com o motivo exato —
+    inclui placa canônica sem cadastro (veiculo_desconhecido, R4)."""
+    from pipeline.run_etl import executar_ciclo
+
+    engine = ambiente_pipeline
+    executar_ciclo()
+
+    with engine.connect() as c:
+        placa_boa = c.execute(sql_text("SELECT placa FROM veiculo LIMIT 1")).scalar()
+
+    from pipeline.config import inbox_dir
+    (inbox_dir() / "lote_sujo.csv").write_text(
+        "placa,data,litros,valor,condutor,km\n"
+        f'{placa_boa},01/07/2026,"10,0","55,00",COND-001,99999\n'   # válida
+        '@@@@,01/07/2026,"10,0","55,00",COND-001,\n'                # placa_invalida
+        'ZZZ9Z99,01/07/2026,"10,0","55,00",COND-001,\n'             # veiculo_desconhecido
+        f'{placa_boa},31/02/2026,"10,0","55,00",COND-001,\n'        # data_invalida
+        f'{placa_boa},,"10,0","55,00",COND-001,\n'                  # data_ausente
+        f'{placa_boa},02/07/2026,"abc","55,00",COND-001,\n'         # valor_invalido
+    )
+
+    resumo = executar_ciclo()
+
+    assert resumo["abastecimento"]["consolidados"] == 1, resumo["abastecimento"]
+    assert resumo["abastecimento"]["rejeitados"] == 5, resumo["abastecimento"]
+    with engine.connect() as c:
+        motivos = {r[0]: r[1] for r in c.execute(sql_text(
+            "SELECT motivo_rejeicao, COUNT(*) FROM log_qualidade"
+            " WHERE fonte='abastecimento' GROUP BY 1"))}
+        assert motivos == {"placa_invalida": 1, "veiculo_desconhecido": 1,
+                           "data_invalida": 1, "data_ausente": 1, "valor_invalido": 1}, motivos
+        assert c.execute(sql_text(
+            "SELECT COUNT(*) FROM abastecimento WHERE placa = :p AND data = '2026-07-01'"),
+            {"p": placa_boa}).scalar() == 1
+
+
+def test_us2_cnh_nunca_chega_a_consolidada(ambiente_pipeline):
+    """FR-011 (LGPD): a cnh sintética existe no staging (trilha bruta) mas nenhum
+    valor dela aparece em qualquer consolidada — o descarte é estrutural."""
+    from pipeline.run_etl import executar_ciclo
+
+    engine = ambiente_pipeline
+    executar_ciclo()
+
+    with engine.connect() as c:
+        cnhs = {r[0] for r in c.execute(sql_text(
+            "SELECT DISTINCT cnh FROM stg_multas WHERE cnh IS NOT NULL"))}
+        assert cnhs, "staging deveria reter a cnh bruta (trilha de auditoria)"
+        for t in ["veiculo"] + CONSOLIDADAS_EVENTO:
+            for row in c.execute(sql_text(f"SELECT * FROM {t}")):
+                assert not (set(map(str, row)) & cnhs), f"cnh vazou em {t}"

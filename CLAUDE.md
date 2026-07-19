@@ -78,3 +78,4 @@ docs/decisoes/   ADRs                                         specs/       espec
 > Pasta: `./docs/learning-lessons/`
 
 - [Proteja a âncora do ruído: teste o invariante negativo em geradores de dados](./docs/learning-lessons/proteja_a_ancora_do_ruido_e_teste_o_invariante_negativo.md) — 2026-07-15
+- [Valide o ciclo de ponta a ponta nos dois bancos-alvo](./docs/learning-lessons/valide_o_ciclo_de_ponta_a_ponta_nos_dois_bancos_alvo.md) — 2026-07-19

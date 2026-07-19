@@ -37,4 +37,5 @@ def extrair_licenciamento(engine: Engine) -> dict:
         with engine.begin() as conn:
             conn.execute(insert(StgLicenciamento.__table__), linhas)
 
-    return {"situacao": "ok", "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0}
+    return {"situacao": "ok", "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0,
+            "carga_em": carga_em}

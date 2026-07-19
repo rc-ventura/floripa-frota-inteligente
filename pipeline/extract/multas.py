@@ -32,6 +32,7 @@ def extrair_multas(engine: Engine) -> dict:
     
     with engine.begin() as conn:
         conn.execute(insert(StgMultas.__table__), linhas)
-    
-    return {"situacao": "ok", "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0}
+
+    return {"situacao": "ok", "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0,
+            "carga_em": carga_em}
  

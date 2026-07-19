@@ -89,14 +89,14 @@ def normalizar_tipo_manutencao(valor: str | None) -> str | None:
     if not valor:
         return None
     s = _normalizar_texto(valor)
-    if "oleo" in s:
-        return "troca_oleo"
     if "filtro" in s:
         return "filtros"
     if "pneu" in s:
         return "pneus"
     if "revisao" in s:
         return "revisao_geral"
+    if "oleo" in s:
+        return "troca_oleo"
     return None
 
  

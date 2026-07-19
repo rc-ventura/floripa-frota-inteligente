@@ -35,13 +35,15 @@ def carregar_cadastro(engine: Engine) -> dict:
     stmt = stmt.on_conflict_do_update(index_elements=["placa"], set_=set_)
     
     with engine.begin() as conn:
-        result = conn.execute(stmt)
-    
+        conn.execute(stmt)
+
+    # cada linha do JSON insere ou atualiza a sua placa (rowcount é -1 no psycopg
+    # em INSERT multi-VALUES — não confiar nele)
     return {
-        "situacao": "ok", 
-        "extraidos": len(veiculos), 
-        "consolidados": result.rowcount, 
-        "rejeitados": 0
+        "situacao": "ok",
+        "extraidos": len(veiculos),
+        "consolidados": len(veiculos),
+        "rejeitados": 0,
     }
 
 def _linha(v: dict, fonte_origem: str) -> dict:

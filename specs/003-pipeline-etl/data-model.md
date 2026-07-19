@@ -136,8 +136,9 @@ Uma linha por registro rejeitado ou falha de fonte (R7/R8):
 | `carga_em` | timestamp do lote (correlaciona com o staging) |
 
 **Regra de precedência de motivos** (1 registro = 1 motivo, o primeiro que falhar):
-placa → data → valores numéricos → vocabulários → cadastro (`veiculo_desconhecido`) →
-dedup (`duplicado`). Determinístico para os testes de SC-002.
+placa (`placa_invalida`) → cadastro (`veiculo_desconhecido`) → data → demais campos na
+ordem das colunas da fonte (numéricos e vocabulários) → dedup (`duplicado`).
+Determinístico para os testes de SC-002.
 
 ## Invariantes (o que os testes de aceitação fixam)
 

@@ -27,10 +27,10 @@ testes na suíte única `tests/`.
 
 **Purpose**: estrutura de pacotes, dependência e parametrização — pré-condição de tudo.
 
-- [ ] T001 Criar esqueleto de pacotes: `pipeline/__init__.py`, `pipeline/extract/__init__.py`, `pipeline/transform/__init__.py`, `pipeline/load/__init__.py` (dirs já existem com `.gitkeep`)
-- [ ] T002 Promover `httpx>=0.27` do grupo `dev` para `dependencies` em `pyproject.toml` + `uv lock` (research R9)
-- [ ] T003 [P] Criar `pipeline/config.py` — env vars do contrato com defaults: `PIPELINE_INBOX`, `MULTAS_API_URL`, `PIPELINE_XLSX_MANUTENCAO`, `PIPELINE_SQLITE_LICENCIAMENTO`, `PIPELINE_CADASTRO_VEICULOS` (contracts/ciclo_pipeline.md § Configuração; constitution V)
-- [ ] T004 [P] Adicionar as 5 variáveis do pipeline (comentadas, com defaults) em `.env.example`
+- [x] T001 Criar esqueleto de pacotes: `pipeline/__init__.py`, `pipeline/extract/__init__.py`, `pipeline/transform/__init__.py`, `pipeline/load/__init__.py` (dirs já existem com `.gitkeep`)
+- [x] T002 Promover `httpx>=0.27` do grupo `dev` para `dependencies` em `pyproject.toml` + `uv lock` (research R9)
+- [x] T003 [P] Criar `pipeline/config.py` — env vars do contrato com defaults: `PIPELINE_INBOX`, `MULTAS_API_URL`, `PIPELINE_XLSX_MANUTENCAO`, `PIPELINE_SQLITE_LICENCIAMENTO`, `PIPELINE_CADASTRO_VEICULOS` (contracts/ciclo_pipeline.md § Configuração; constitution V)
+- [x] T004 [P] Adicionar as 5 variáveis do pipeline (comentadas, com defaults) em `.env.example`
 
 ---
 
@@ -41,12 +41,12 @@ user stories dependem disto.
 
 **⚠️ CRITICAL**: nenhuma user story começa antes desta fase terminar.
 
-- [ ] T005 Criar `pipeline/transform/normalizadores.py` — `normalizar_placa()` (upper, sem hífen/espaço, valida `db.models.REGEX_PLACA_CANONICA` — ADR-001), `interpretar_data()` (dd/mm/aaaa → ISO → serial Excel 20.000–80.000 origem 1899-12-30 — R5), `converter_decimal()` (vírgula→ponto), `normalizar_tipo_manutencao()`/`normalizar_categoria()`/`normalizar_situacao()` (radicais + sem acento — R6)
-- [ ] T006 [P] Criar helpers de novidade e lote em `pipeline/extract/__init__.py` — `sha256_conteudo()`, `montar_fonte_origem(identificador, hash)` (`id@sha256:12hex`), `fonte_ja_vista(engine, tabela_stg, hash)` via LIKE no staging, `novo_lote()` (carga_em único por fonte/ciclo) (R1/R2)
-- [ ] T007 [P] Criar base de carga em `pipeline/load/upsert.py` — fábrica de INSERT por dialeto (`sqlite`/`postgresql` `insert().on_conflict_do_nothing/do_update` — R3) e `gravar_rejeicoes(engine, fonte, rejeicoes, carga_em)` em `log_qualidade` (vocabulário R7)
-- [ ] T008 [P] Criar `pipeline/load/cadastro.py` — carga do cadastro `veiculo` de `PIPELINE_CADASTRO_VEICULOS` (upsert por `placa`, pulado por hash, `fonte_origem` com hash, `km_atual` nunca rebaixado — R4)
-- [ ] T009 Criar esqueleto de `pipeline/run_etl.py` — `executar_ciclo()` na ordem cadastro → abastecimento → multas → manutenção → licenciamento, resumo por fonte (`situacao`/`extraidos`/`consolidados`/`rejeitados` — contrato § Retorno), `__main__` com exit code (FR-008; depende de T003/T006/T007/T008)
-- [ ] T010 Testes unitários dos normalizadores em `tests/test_pipeline.py` — placa nos 2 formatos + inválidas, 3 formatos de data + serial + `31/02/2026` inválida, decimais com vírgula, todas as grafias de tipo/categoria de `data/seeds/INCONSISTENCIAS.md` (depende de T005)
+- [x] T005 Criar `pipeline/transform/normalizadores.py` — `normalizar_placa()` (upper, sem hífen/espaço, valida `db.models.REGEX_PLACA_CANONICA` — ADR-001), `interpretar_data()` (dd/mm/aaaa → ISO → serial Excel 20.000–80.000 origem 1899-12-30 — R5), `converter_decimal()` (vírgula→ponto), `normalizar_tipo_manutencao()`/`normalizar_categoria()`/`normalizar_situacao()` (radicais + sem acento — R6)
+- [x] T006 [P] Criar helpers de novidade e lote em `pipeline/extract/__init__.py` — `sha256_conteudo()`, `montar_fonte_origem(identificador, hash)` (`id@sha256:12hex`), `fonte_ja_vista(engine, tabela_stg, hash)` via LIKE no staging, `novo_lote()` (carga_em único por fonte/ciclo) (R1/R2)
+- [x] T007 [P] Criar base de carga em `pipeline/load/upsert.py` — fábrica de INSERT por dialeto (`sqlite`/`postgresql` `insert().on_conflict_do_nothing/do_update` — R3) e `gravar_rejeicoes(engine, fonte, rejeicoes, carga_em)` em `log_qualidade` (vocabulário R7)
+- [x] T008 [P] Criar `pipeline/load/cadastro.py` — carga do cadastro `veiculo` de `PIPELINE_CADASTRO_VEICULOS` (upsert por `placa`, pulado por hash, `fonte_origem` com hash, `km_atual` nunca rebaixado — R4)
+- [x] T009 Criar esqueleto de `pipeline/run_etl.py` — `executar_ciclo()` na ordem cadastro → abastecimento → multas → manutenção → licenciamento, resumo por fonte (`situacao`/`extraidos`/`consolidados`/`rejeitados` — contrato § Retorno), `__main__` com exit code (FR-008; depende de T003/T006/T007/T008)
+- [x] T010 Testes unitários dos normalizadores em `tests/test_pipeline.py` — placa nos 2 formatos + inválidas, 3 formatos de data + serial + `31/02/2026` inválida, decimais com vírgula, todas as grafias de tipo/categoria de `data/seeds/INCONSISTENCIAS.md` (depende de T005)
 
 **Checkpoint**: fundação pronta — user stories podem começar (em paralelo, se houver gente).
 
@@ -63,12 +63,12 @@ populado com bruto intacto (hífen, minúscula, vírgula preservados) + carimbo 
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Criar `pipeline/extract/abastecimento.py` — varre `PIPELINE_INBOX` (`*.csv`), pula arquivo de hash já visto, grava colunas verbatim em `stg_abastecimento` (contrato 001 `formatos_arquivo.md`; R1)
-- [ ] T012 [P] [US1] Criar `pipeline/extract/multas.py` — `GET {MULTAS_API_URL}/multas` (httpx, timeout 5s — R9), payload bruto **incluindo `cnh`/`gravidade`/`codigo_infracao`** em `stg_multas` (staging é trilha bruta), hash do corpo da resposta
-- [ ] T013 [P] [US1] Criar `pipeline/extract/manutencao.py` — lê as 3 abas do `PIPELINE_XLSX_MANUTENCAO` por nome de coluna (colunas fora de ordem OK), aba inesperada → `logging.warning` sem quebrar (edge case), nome da aba em `stg_manutencao.aba_origem`
-- [ ] T014 [P] [US1] Criar `pipeline/extract/licenciamento.py` — `SELECT * FROM licenciamento` no `PIPELINE_SQLITE_LICENCIAMENTO` (conexão somente-leitura), duplicatas preservadas em `stg_licenciamento` (dedup é do transform — US1 cenário 4)
-- [ ] T015 [US1] Ligar o estágio Extract em `pipeline/run_etl.py` — um lote por fonte com `carga_em` único, `situacao=sem_novidade` quando hash já visto (depende de T011–T014)
-- [ ] T016 [US1] Teste de aceitação US1 em `tests/test_pipeline.py` — após 1 ciclo: 4 stagings com bruto intacto + `carga_em` + `fonte_origem` no formato `id@sha256:...`; 2º ciclo sem mudança nas fontes → zero linhas novas de staging (R1)
+- [x] T011 [P] [US1] Criar `pipeline/extract/abastecimento.py` — varre `PIPELINE_INBOX` (`*.csv`), pula arquivo de hash já visto, grava colunas verbatim em `stg_abastecimento` (contrato 001 `formatos_arquivo.md`; R1)
+- [x] T012 [P] [US1] Criar `pipeline/extract/multas.py` — `GET {MULTAS_API_URL}/multas` (httpx, timeout 5s — R9), payload bruto **incluindo `cnh`/`gravidade`/`codigo_infracao`** em `stg_multas` (staging é trilha bruta), hash do corpo da resposta
+- [x] T013 [P] [US1] Criar `pipeline/extract/manutencao.py` — lê as 3 abas do `PIPELINE_XLSX_MANUTENCAO` por nome de coluna (colunas fora de ordem OK), aba inesperada → `logging.warning` sem quebrar (edge case), nome da aba em `stg_manutencao.aba_origem`
+- [x] T014 [P] [US1] Criar `pipeline/extract/licenciamento.py` — `SELECT * FROM licenciamento` no `PIPELINE_SQLITE_LICENCIAMENTO` (conexão somente-leitura), duplicatas preservadas em `stg_licenciamento` (dedup é do transform — US1 cenário 4)
+- [x] T015 [US1] Ligar o estágio Extract em `pipeline/run_etl.py` — um lote por fonte com `carga_em` único, `situacao=sem_novidade` quando hash já visto (depende de T011–T014)
+- [x] T016 [US1] Teste de aceitação US1 em `tests/test_pipeline.py` — após 1 ciclo: 4 stagings com bruto intacto + `carga_em` + `fonte_origem` no formato `id@sha256:...`; 2º ciclo sem mudança nas fontes → zero linhas novas de staging (R1)
 
 **Checkpoint**: staging auditável funcionando — US1 testável de forma independente.
 
@@ -85,12 +85,12 @@ motivo — a evidência direta para a banca (risco nº 1 do briefing).
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Criar motor de regras em `pipeline/transform/qualidade.py` — processa só o lote corrente (R2), aplica precedência de motivos placa → data → numéricos → vocabulários → cadastro → dedup (data-model § precedência), dedup intra-lote pela chave natural de cada tabela (R3), retorna `(validos, rejeicoes)`
-- [ ] T018 [US2] Mapeamentos por fonte em `pipeline/transform/qualidade.py` — staging→colunas consolidadas das 4 fontes (data-model § por fonte): descarte estrutural de `cnh`/`gravidade`/`codigo_infracao` (FR-011), checagem `veiculo_desconhecido` contra o cadastro (R4), dedup de licenciamento por `(placa, vencimento mais recente)` com preterida → `duplicado` (depende de T017)
-- [ ] T019 [US2] Funções de upsert por tabela em `pipeline/load/upsert.py` — `abastecimento`/`manutencao`/`multa` com `do_nothing` sem alvo (cobre `ux_multa_upsert` — ADR-004/R3), `licenciamento` com `do_update` por `placa`, `fonte_origem` copiado do staging (SC-003)
-- [ ] T020 [US2] Ligar Transform → Load em `pipeline/run_etl.py` — válidos ao upsert, rejeições a `gravar_rejeicoes()`, contadores no resumo do ciclo (depende de T017–T019)
-- [ ] T021 [US2] Teste SC-002 em `tests/test_pipeline.py` — ciclo completo sobre os seeds: 100% das inconsistências **inválidas** de `data/seeds/INCONSISTENCIAS.md` em `log_qualidade` com o motivo previsto; as normalizáveis (hífen, minúscula, vírgula, serial) consolidadas sem rejeição; vocabulários do consolidado ⊆ CHECKs do banco
-- [ ] T022 [US2] Testes de edge cases em `tests/test_pipeline.py` — linha corrompida no meio do CSV: válidas entram, inválida rejeitada (nunca tudo-ou-nada); placa canônica sem cadastro → `veiculo_desconhecido`; nenhum valor de `cnh` do staging presente em qualquer consolidada (FR-011, quickstart Cenário 3)
+- [x] T017 [US2] Criar motor de regras em `pipeline/transform/qualidade.py` — processa só o lote corrente (R2), aplica precedência de motivos placa → data → numéricos → vocabulários → cadastro → dedup (data-model § precedência), dedup intra-lote pela chave natural de cada tabela (R3), retorna `(validos, rejeicoes)`
+- [x] T018 [US2] Mapeamentos por fonte em `pipeline/transform/qualidade.py` — staging→colunas consolidadas das 4 fontes (data-model § por fonte): descarte estrutural de `cnh`/`gravidade`/`codigo_infracao` (FR-011), checagem `veiculo_desconhecido` contra o cadastro (R4), dedup de licenciamento por `(placa, vencimento mais recente)` com preterida → `duplicado` (depende de T017)
+- [x] T019 [US2] Funções de upsert por tabela em `pipeline/load/upsert.py` — `abastecimento`/`manutencao`/`multa` com `do_nothing` sem alvo (cobre `ux_multa_upsert` — ADR-004/R3), `licenciamento` com `do_update` por `placa`, `fonte_origem` copiado do staging (SC-003)
+- [x] T020 [US2] Ligar Transform → Load em `pipeline/run_etl.py` — válidos ao upsert, rejeições a `gravar_rejeicoes()`, contadores no resumo do ciclo (depende de T017–T019)
+- [x] T021 [US2] Teste SC-002 em `tests/test_pipeline.py` — ciclo completo sobre os seeds: 100% das inconsistências **inválidas** de `data/seeds/INCONSISTENCIAS.md` em `log_qualidade` com o motivo previsto; as normalizáveis (hífen, minúscula, vírgula, serial) consolidadas sem rejeição; vocabulários do consolidado ⊆ CHECKs do banco
+- [x] T022 [US2] Testes de edge cases em `tests/test_pipeline.py` — linha corrompida no meio do CSV: válidas entram, inválida rejeitada (nunca tudo-ou-nada); placa canônica sem cadastro → `veiculo_desconhecido`; nenhum valor de `cnh` do staging presente em qualquer consolidada (FR-011, quickstart Cenário 3)
 
 **Checkpoint**: US1+US2 = dado sujo entra, consolidado limpo + log de rejeições sai.
 
