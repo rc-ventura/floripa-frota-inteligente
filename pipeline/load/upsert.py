@@ -5,7 +5,8 @@ from sqlalchemy import func, insert, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
- 
+from sqlalchemy import text as sql_text
+
 from db.models import LogQualidade
 from db.models import Abastecimento, Licenciamento, Manutencao, Multa
 
@@ -43,6 +44,38 @@ def gravar_rejeicoes(engine: Engine, fonte: str, rejeicoes: list[dict], carga_em
     return len(linhas)
 
 
+def atualizar_km_atual(engine: Engine, placas_afetadas: set[str]) -> int:
+    """R10/FR-010: após o upsert de abastecimento, para cada placa afetada,
+    km_atual ← MAX(km_hodometro) do consolidado, MAS só se superar o atual
+    (nunca rebaixa — monotonicidade). SQL portável SQLite/Postgres.
+ 
+    Correlaciona veiculo.placa na subquery — funciona em ambos os dialetos.
+    Retorna o número de veículos efetivamente atualizados."""
+    
+    if not placas_afetadas:
+        return 0
+    
+    sql = sql_text("""
+        UPDATE veiculo
+        SET km_atual = (
+            SELECT MAX(km_hodometro)
+            FROM abastecimento 
+            WHERE placa = veiculo.placa AND km_hodometro IS NOT NULL
+        )
+        WHERE placa = :placa
+        AND (
+            SELECT MAX(km_hodometro)
+            FROM abastecimento 
+            WHERE placa = veiculo.placa AND km_hodometro IS NOT NULL
+        ) > km_atual
+    """)
+    
+    with engine.begin() as conn:
+        n = 0
+        for p in placas_afetadas:
+            n += conn.execute(sql, {"placa": p}).rowcount
+        return n
+
 
 # ---------- Upserts por tabela (T019) ----------
 
@@ -64,7 +97,13 @@ def upsert_abastecimento(engine: Engine, validos: list[dict]) -> int:
         return 0
     ins = dialeto_insert(engine)
     stmt = ins(Abastecimento.__table__).values(validos).on_conflict_do_nothing()
-    return _insert_contando_delta(engine, Abastecimento.__table__, stmt)
+    # delta, não rowcount: psycopg devolve -1 em multi-VALUES (learning lesson 2026-07-19)
+    n = _insert_contando_delta(engine, Abastecimento.__table__, stmt)
+
+    # R10: só placas com km_hodometro não-nulo podem elevar km_atual
+    placas = {v["placa"] for v in validos if v.get("km_hodometro") is not None}
+    atualizar_km_atual(engine, placas)
+    return n
 
 
 def upsert_manutencao(engine: Engine, validos: list[dict]) -> int:
@@ -94,11 +133,13 @@ def upsert_licenciamento(engine: Engine, validos: list[dict]) -> int:
         return 0
     ins = dialeto_insert(engine)
     stmt = ins(Licenciamento.__table__).values(validos)
+    # vencimento/situacao (anuláveis): coalesce-preserva-não-nulo — um lote com o campo
+    # NULL NÃO zera o valor consolidado (ADR-005/Devin-B). fonte_origem: last-write-wins.
     stmt = stmt.on_conflict_do_update(
         index_elements=["placa"],
         set_={
-            "vencimento": stmt.excluded.vencimento,
-            "situacao": stmt.excluded.situacao,
+            "vencimento": func.coalesce(stmt.excluded.vencimento, Licenciamento.vencimento),
+            "situacao": func.coalesce(stmt.excluded.situacao, Licenciamento.situacao),
             "fonte_origem": stmt.excluded.fonte_origem,
         },
     )

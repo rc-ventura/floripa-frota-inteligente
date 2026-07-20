@@ -29,9 +29,12 @@ def extrair_multas(engine: Engine) -> dict:
         "fonte_origem": fonte_origem,
         **{c: to_text(m.get(c)) for c in _CAMPOS},
     } for m in multas]
+
     
-    with engine.begin() as conn:
-        conn.execute(insert(StgMultas.__table__), linhas)
+    # Sem if linhas insert(..., []) vira INSERT ... DEFAULT VALUES → IntegrityError.
+    if linhas:
+        with engine.begin() as conn:
+            conn.execute(insert(StgMultas.__table__), linhas)
 
     return {"situacao": "ok", "extraidos": len(linhas), "consolidados": 0, "rejeitados": 0,
             "carga_em": carga_em}

@@ -1,15 +1,17 @@
 import json
- 
+
+from sqlalchemy import func
 from sqlalchemy.engine import Engine
- 
+
 from db.models import Veiculo
 from pipeline.config import cadastro_veiculos
 from pipeline.extract import fonte_ja_vista, montar_fonte_origem, sha256_conteudo
 from pipeline.load.upsert import dialeto_insert
 
-# Campos atualizados no conflito. km_atual NÃO está aqui: cadastro nunca o rebaixa
-# (R4); só o R10 o eleva a partir de MAX(km_hodometro) do abastecimento.
-CAMPOS_MUTAVEIS = ["tipo_veiculo", "modelo", "ano", "secretaria"]
+# Descritivos anuláveis: coalesce-preserva-não-nulo (ADR-005) — um cadastro sem o
+# campo NÃO zera um valor já persistido. tipo_veiculo é NOT NULL (sempre presente).
+CAMPOS_COALESCE = ["modelo", "ano", "secretaria"]
+# km_atual NÃO é atualizado pelo cadastro: monotonic-exclude (ADR-005; só o R10 o eleva, R4).
  
 
 def carregar_cadastro(engine: Engine) -> dict:
@@ -30,8 +32,11 @@ def carregar_cadastro(engine: Engine) -> dict:
     stmt = ins(Veiculo.__table__).values([_linha(v, fonte_origem) for v in veiculos])
     # do_update por placa (PK); km_atual intocado no update (R4).
 
-    set_ = {c: getattr(stmt.excluded, c) for c in CAMPOS_MUTAVEIS}
-    set_["fonte_origem"] = stmt.excluded.fonte_origem
+    # tipo_veiculo (NOT NULL): last-write-wins direto. modelo/ano/secretaria (anuláveis):
+    # coalesce-preserva-não-nulo. fonte_origem: last-write-wins (proveniência). ADR-005.
+    set_ = {"tipo_veiculo": stmt.excluded.tipo_veiculo, "fonte_origem": stmt.excluded.fonte_origem}
+    for c in CAMPOS_COALESCE:
+        set_[c] = func.coalesce(getattr(stmt.excluded, c), getattr(Veiculo, c))
     stmt = stmt.on_conflict_do_update(index_elements=["placa"], set_=set_)
     
     with engine.begin() as conn:
