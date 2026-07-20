@@ -90,7 +90,7 @@ Como operador, preciso que a falha de uma fonte (endpoint fora do ar, arquivo co
 - **FR-001**: O pipeline MUST ter um extrator por fonte, cada um lendo seu formato nativo (CSV em pasta monitorada, endpoint JSON, XLSX multi-abas, base SQL legada) e gravando dado bruto no staging correspondente.
 - **FR-002**: Todo registro de staging MUST carregar carimbo de data/hora da carga e identificação do arquivo/endpoint de origem (rastreabilidade, briefing 4.1).
 - **FR-003**: A transformação MUST normalizar placa para o canônico (maiúsculas, sem hífen/espaço; formatos antigo `AAA9999` e Mercosul `AAA9A99`, validados pela regex `^[A-Z]{3}\d[A-Z\d]\d{2}$` — ADR-001), interpretar datas em múltiplos formatos (incluindo serial de planilha), converter decimais com vírgula e padronizar vocabulário de tipos de manutenção — incluindo grafias de revisão programada (ex.: "Revisão 10.000 km" → `revisao_geral`) e a coluna `categoria` para `preventiva` | `corretiva` (ADR-003 itens 7–8).
-- **FR-004**: A transformação MUST deduplicar por chave natural (placa + data + tipo).
+- **FR-004**: A transformação MUST deduplicar cada fonte pela chave natural da sua tabela consolidada (contrato da spec 002 — ex.: `placa + data + tipo` em manutenção; `placa + data + km` em abastecimento; `placa + data + valor + condutor` em multas; `placa` mantendo o vencimento mais recente em licenciamento).
 - **FR-005**: Registro rejeitado MUST ir para `log_qualidade` com o registro bruto e o motivo (`placa_invalida`, `data_ausente`, `duplicado`, ...); nenhuma rejeição pode ser silenciosa.
 - **FR-006**: A carga MUST ser idempotente (upsert): executar o pipeline N vezes sobre os mesmos dados resulta no mesmo estado consolidado, comprovado por teste automatizado.
 - **FR-007**: Cada extrator MUST rodar isolado: falha em uma fonte não interrompe o processamento das demais e fica registrada.
@@ -120,6 +120,7 @@ Como operador, preciso que a falha de uma fonte (endpoint fora do ar, arquivo co
 - Os formatos e inconsistências de entrada são exatamente os produzidos pela spec 001; inconsistência nova descoberta vira regra de qualidade nova + registro na documentação.
 - O disparo é por ciclo agendado (batch), não streaming nem evento de arquivo (decisão 3.2 da arquitetura); gatilho por evento fica documentado como evolução.
 - Arquivos já processados permanecem na pasta (o controle de "já visto" é do pipeline), preservando o cenário da demo de simplesmente depositar um CSV novo.
+- O cadastro canônico da frota (`data/seeds/veiculos.json`, referência interna da spec 001) é carregado pelo pipeline **antes** das 4 fontes de eventos — as FKs e o `tipo_veiculo` (NOT NULL) dependem dele; evento cuja placa canônica não existe no cadastro é rejeitado com motivo `veiculo_desconhecido`.
 
 ## Referências
 
