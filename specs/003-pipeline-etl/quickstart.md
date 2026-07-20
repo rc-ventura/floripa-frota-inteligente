@@ -120,6 +120,10 @@ sqlite3 db/frota.db "SELECT fonte, motivo_rejeicao FROM log_qualidade WHERE moti
 time uv run python -m pipeline.run_etl    # < 1 min (volume da PoC) — na prática, segundos
 ```
 
+> **Validado (2026-07-20)**: ciclo completo das 4 fontes em **~0,75s** (SQLite, volume da
+> PoC), muito abaixo do limite de 1 min do SC-004. Cenários 1–8 executados de ponta a ponta
+> em banco limpo, nos dois dialetos (SQLite e PostgreSQL 16).
+
 ## Cenário 8 — Suíte automatizada
 
 ```bash

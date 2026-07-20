@@ -113,13 +113,13 @@ atualizado conforme cada spec é entregue. **Legenda:** 🔴 `demo-crítico` · 
 - [x] 1. 🔴 Criar gerador_dados.py (4 fontes) — `data/gerador_dados.py` + 4 datasets com inconsistências (spec 001)
 - [x] 2. Subir API fake de multas (FastAPI) — `fake_api/main.py` servindo multas (spec 001)
 - [x] 3. Modelar banco (SQLAlchemy + migrations) — `db/models.py` + 2 migrations + `init_db.py` idempotente (spec 002)
-- [ ] 4. 🔴 Extrator de abastecimento (CSV/pasta monitorada) — spec 003
-- [ ] 5. Extrator de multas (API) — spec 003
-- [ ] 6. Extrator de manutenção (XLSX) — spec 003
-- [ ] 7. Extrator de licenciamento (SQLite) — spec 003
-- [ ] 8. 🔴 Transformação e regras de qualidade — spec 003
-- [ ] 9. 🔴 Carga idempotente (upsert) — chaves UNIQUE prontas no banco (spec 002/ADR-004); carga é spec 003
-- [ ] 10. Documentar pipeline e rastreabilidade — spec 003
+- [x] 4. 🔴 Extrator de abastecimento (CSV/pasta monitorada) — `pipeline/extract/abastecimento.py`, novidade por hash (spec 003 US1)
+- [x] 5. Extrator de multas (API) — `pipeline/extract/multas.py` via httpx (spec 003 US1)
+- [x] 6. Extrator de manutenção (XLSX) — `pipeline/extract/manutencao.py`, 3 abas (spec 003 US1)
+- [x] 7. Extrator de licenciamento (SQLite) — `pipeline/extract/licenciamento.py`, somente leitura (spec 003 US1)
+- [x] 8. 🔴 Transformação e regras de qualidade — `pipeline/transform/`, canônico + `log_qualidade` (spec 003 US2)
+- [x] 9. 🔴 Carga idempotente (upsert) — `pipeline/load/upsert.py`, chaves UNIQUE do banco (spec 002/ADR-004); `km_atual` monotônico (spec 003 US3)
+- [x] 10. Documentar pipeline e rastreabilidade — `pipeline/README.md` (spec 003)
 
 ### Fase 2 — Motor de alertas (6 tasks) — spec 004
 
@@ -154,10 +154,10 @@ atualizado conforme cada spec é entregue. **Legenda:** 🔴 `demo-crítico` · 
 - [ ] 5. 🔴 Vídeo plano B do disparo do alerta
 - [ ] 6. Pitch e posicionamento
 
-**Progresso:** 7/36 tasks concluídas — Fase 0: 4/5 · Fase 1: 3/10 · Fases 2–4: 0/21
+**Progresso:** 14/36 tasks concluídas — Fase 0: 4/5 · Fase 1: 10/10 ✅ · Fases 2–4: 0/21
 
-> Próxima do caminho crítico: **spec 003 (pipeline ETL)** — desbloqueada, é o pré-requisito
-> do motor de alertas (004) e dos painéis (005/006).
+> Próxima do caminho crítico: **spec 004 (motor de alertas)** — desbloqueada pelo pipeline
+> ETL (003) entregue; é o que dispara o alerta preventivo ao vivo da demo.
 
 ---
 
@@ -207,6 +207,27 @@ existente, `uv run python -m db.seed_limiares --sobrescrever`.
 ![ER staging](docs/modelagem/v1/diagrama_er_staging.png)
 
 *Staging (`stg_*`, uma por fonte, tipos frouxos) + `log_qualidade` — sem FKs por design.*
+
+### Pipeline ETL (spec 003)
+
+Integra as 4 fontes legadas no banco consolidado em três estágios (Extract → Transform →
+Load). Com o esquema criado, a Fonte 1 na pasta monitorada e a API de multas no ar:
+
+```bash
+cp data/seeds/abastecimento.csv data/inbox/          # Fonte 1 (pasta monitorada)
+uv run uvicorn fake_api.main:app --port 8000 &       # Fonte 2 (multas)
+uv run python -m pipeline.run_etl                     # 1 ciclo completo (E→T→L)
+```
+
+Idempotente (rodar N vezes → mesmo estado), resiliente (fonte fora do ar não derruba as
+demais) e rastreável (todo dado leva `fonte_origem` até a carga; rejeição vai a
+`log_qualidade` com motivo — nunca em silêncio). O ciclo é o ponto de entrada que o motor de
+alertas (spec 004) vai agendar.
+
+- **Regras de qualidade, rastreabilidade e vocabulário de rejeições**: `pipeline/README.md`.
+- **Testes**: `uv run pytest tests/test_pipeline.py` — normalizadores + as 4 user stories
+  (extração bruta, qualidade, idempotência, resiliência).
+- **Roteiro completo de validação** (8 cenários): `specs/003-pipeline-etl/quickstart.md`.
 
 ---
 

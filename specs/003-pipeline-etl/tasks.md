@@ -107,9 +107,9 @@ conteúdo; depositar `gatilho_demo_abastecimento.csv` e ver só ele ser incorpor
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Atualização de `veiculo.km_atual` em `pipeline/load/upsert.py` — após upsert de abastecimento, por placa afetada: `MAX(km_hodometro)` consolidado quando superar o atual (nunca rebaixa — R10/FR-010; SQL portável SQLite/Postgres, sem `GREATEST`)
-- [ ] T024 [US3] Teste SC-001 em `tests/test_pipeline.py` — dupla execução sem mudança nas fontes: contagens e conteúdo idênticos em todas as consolidadas, staging **e** `log_qualidade`; resumo com `sem_novidade` nas 5 fontes (R1/R2/R3); reprocessar manualmente um lote antigo de staging → consolidadas inalteradas (edge case "staging crescendo")
-- [ ] T025 [US3] Teste do momento da demo em `tests/test_pipeline.py` — depositar `data/seeds/gatilho_demo_abastecimento.csv` no inbox: só ele é extraído (demais `sem_novidade`), `km_atual` do veículo A ≥ 4501 (contrato 001); mesmo conteúdo re-depositado com outro nome → estado inalterado (edge case hash — R1)
+- [x] T023 [US3] Atualização de `veiculo.km_atual` em `pipeline/load/upsert.py` — após upsert de abastecimento, por placa afetada: `MAX(km_hodometro)` consolidado quando superar o atual (nunca rebaixa — R10/FR-010; SQL portável SQLite/Postgres, sem `GREATEST`)
+- [x] T024 [US3] Teste SC-001 em `tests/test_pipeline.py` — dupla execução sem mudança nas fontes: contagens e conteúdo idênticos em todas as consolidadas, staging **e** `log_qualidade`; resumo com `sem_novidade` nas 5 fontes (R1/R2/R3); reprocessar manualmente um lote antigo de staging → consolidadas inalteradas (edge case "staging crescendo")
+- [x] T025 [US3] Teste do momento da demo em `tests/test_pipeline.py` — depositar `data/seeds/gatilho_demo_abastecimento.csv` no inbox: só ele é extraído (demais `sem_novidade`), `km_atual` do veículo A ≥ 4501 (contrato 001); mesmo conteúdo re-depositado com outro nome → estado inalterado (edge case hash — R1)
 
 **Checkpoint**: caminho demo-crítico completo (depositar CSV → consolidado atualizado);
 motor da spec 004 já pode ser construído sobre isto.
@@ -125,8 +125,8 @@ registrada, exit code 0 (quickstart Cenário 6).
 
 ### Implementation for User Story 4
 
-- [ ] T026 [US4] Isolamento por fonte em `pipeline/run_etl.py` — try/except por extrator+transform+load da fonte; exceção → `log_qualidade` (`fonte`, `registro_bruto`=classe+mensagem, `motivo_rejeicao=fonte_indisponivel`, `carga_em`) + `logging.error`, `situacao=indisponivel` no resumo; CLI: exit 0 com fonte fora, ≠0 só em erro estrutural (banco/esquema — R8, contrato § Invocação)
-- [ ] T027 [US4] Teste SC-005 em `tests/test_pipeline.py` — com `MULTAS_API_URL` apontando para porta morta: as outras 3 fontes consolidam 100% dos seus dados no mesmo ciclo, existe registro `fonte_indisponivel` para `multas`, exit code 0; ciclo seguinte com API de volta → fonte volta a `ok`/`sem_novidade`
+- [x] T026 [US4] Isolamento por fonte em `pipeline/run_etl.py` — try/except por extrator+transform+load da fonte; exceção → `log_qualidade` (`fonte`, `registro_bruto`=classe+mensagem, `motivo_rejeicao=fonte_indisponivel`, `carga_em`) + `logging.error`, `situacao=indisponivel` no resumo; CLI: exit 0 com fonte fora, ≠0 só em erro estrutural (banco/esquema — R8, contrato § Invocação)
+- [x] T027 [US4] Teste SC-005 em `tests/test_pipeline.py` — com `MULTAS_API_URL` apontando para porta morta: as outras 3 fontes consolidam 100% dos seus dados no mesmo ciclo, existe registro `fonte_indisponivel` para `multas`, exit code 0; ciclo seguinte com API de volta → fonte volta a `ok`/`sem_novidade`
 
 **Checkpoint**: todas as user stories funcionais e testáveis de forma independente.
 
@@ -136,9 +136,9 @@ registrada, exit code 0 (quickstart Cenário 6).
 
 **Purpose**: documentação exigida por FR-009 e validação de ponta a ponta.
 
-- [ ] T028 [P] Criar `pipeline/README.md` — FR-009 (task 10 da Fase 1 do kanban): tabela de regras de qualidade por fonte (regra → exemplo → destino), vocabulário de motivos (R7), formato de `fonte_origem`, semântica `duplicado` × idempotência (R2/R3), como rodar 1 ciclo
-- [ ] T029 [P] Atualizar `README.md` (raiz) — roadmap Fase 1: marcar tasks 4–10 entregues; seção "como rodar": adicionar o ciclo do pipeline (`uv run python -m pipeline.run_etl`) aos comandos existentes
-- [ ] T030 Validar `quickstart.md` de ponta a ponta — executar Cenários 1–8 num banco limpo, cronometrar o ciclo (SC-004 < 1 min) e registrar o tempo no PR
+- [x] T028 [P] Criar `pipeline/README.md` — FR-009 (task 10 da Fase 1 do kanban): tabela de regras de qualidade por fonte (regra → exemplo → destino), vocabulário de motivos (R7), formato de `fonte_origem`, semântica `duplicado` × idempotência (R2/R3), como rodar 1 ciclo
+- [x] T029 [P] Atualizar `README.md` (raiz) — roadmap Fase 1: marcar tasks 4–10 entregues; seção "como rodar": adicionar o ciclo do pipeline (`uv run python -m pipeline.run_etl`) aos comandos existentes
+- [x] T030 Validar `quickstart.md` de ponta a ponta — executar Cenários 1–8 num banco limpo, cronometrar o ciclo (SC-004 < 1 min) e registrar o tempo no PR
 
 ---
 

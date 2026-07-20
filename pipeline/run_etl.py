@@ -1,11 +1,14 @@
+import json
 import logging
 import sys
+from datetime import datetime
  
 from db.config import get_engine
 from pipeline.extract.abastecimento import extrair_abastecimento
 from pipeline.extract.licenciamento import extrair_licenciamento
 from pipeline.extract.manutencao import extrair_manutencao
 from pipeline.extract.multas import extrair_multas
+from pipeline.extract import novo_lote
 from pipeline.load.cadastro import carregar_cadastro
 from pipeline.load.upsert import (
     gravar_rejeicoes, upsert_abastecimento, upsert_licenciamento,
@@ -15,6 +18,7 @@ from pipeline.transform.qualidade import (
     transformar_abastecimento, transformar_licenciamento,
     transformar_manutencao, transformar_multas,
 )
+
 logger = logging.getLogger("pipeline")
 
 # fontes de eventos em sequência fixa (
@@ -45,18 +49,37 @@ def executar_ciclo() -> dict:
     return resumo
 
 def _processar_fonte(engine, nome, extrair, transformar, carregar) -> dict:
-    """E→T→L de uma fonte. Se extraidos == 0 (sem_novidade), pula T→L (R1/R2)."""
+    """E→T→L de uma fonte, isolada por try/except (R8).
+ 
+    Caminho feliz: extrai → se extraidos > 0, transforma → carrega + rejeições.
+    Caminho sem_novidade: extrai → se extraidos == 0, pula T→L (R1/R2).
+    Caminho falha: exceção → log_qualidade (fonte_indisponivel) + situacao=indisponivel,
+    e o ciclo segue para a próxima fonte.
+    """
+    
+    carga_em = novo_lote()
+    try:
+        resumo = extrair(engine)
+        # pop ANTES de qualquer return: carga_em é canal interno e nunca pode
+        # vazar para o resumo do contrato (nem no caminho sem_novidade)
+        carga_em_lote = resumo.pop("carga_em", carga_em)
+        if resumo["extraidos"] == 0:
+            return resumo
 
-    resumo = extrair(engine)
-    # carga_em identifica o lote (interno — não faz parte do resumo do contrato)
-    carga_em = resumo.pop("carga_em", None)
-    if resumo["extraidos"] == 0:
-        return resumo  # sem_novidade — nada a transformar
+        validos, rejeicoes = transformar(engine, carga_em_lote)
+        resumo["consolidados"] = carregar(engine, validos)
+        resumo["rejeitados"] = gravar_rejeicoes(engine, nome, rejeicoes, carga_em_lote)
+        return resumo
+    
+    except Exception as exc:
+    # R8: falha da fonte inteira → log_qualidade + logging.error, ciclo segue
+        logger.error("fonte %s indisponível: %s", nome, exc, exc_info=True)
+        descricao = f"{type(exc).__name__}: {exc}"
+        gravar_rejeicoes(engine, nome, [{"registro_bruto": descricao,
+                                          "motivo_rejeicao": "fonte_indisponivel"}], carga_em)
+        return {"situacao": "indisponivel", "extraidos": 0,
+                "consolidados": 0, "rejeitados": 1}
 
-    validos, rejeicoes = transformar(engine, carga_em)
-    resumo["consolidados"] = carregar(engine, validos)
-    resumo["rejeitados"] = gravar_rejeicoes(engine, nome, rejeicoes, carga_em)
-    return resumo
  
 
 def _imprimir_resumo(resumo: dict) -> None:
