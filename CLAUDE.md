@@ -73,6 +73,7 @@ docs/decisoes/   ADRs                                         specs/       espec
 | [ADR-003](./docs/decisoes/ADR-003-calibracao-realismo-fontes-simuladas.md) | Calibração de realismo das fontes simuladas (gerador — spec 001) | Proposta | 2026-07-14 |
 | [ADR-004](./docs/decisoes/ADR-004-null-em-chaves-de-upsert.md) | Tratamento de NULL em chaves de unicidade/upsert das consolidadas (coalesce-sentinela) | Proposta | 2026-07-17 |
 | [ADR-005](./docs/decisoes/ADR-005-sobrescrita-upsert-dimensoes.md) | Política de sobrescrita/merge no upsert de dimensões (`on_conflict_do_update`) | Proposta | 2026-07-20 |
+| [ADR-006](./docs/decisoes/ADR-006-idempotencia-motor-insert-lote-on-conflict.md) | Idempotência do motor por INSERT em lote com `ON CONFLICT DO NOTHING` + delta de `COUNT` (spec 004) | Proposta | 2026-07-20 |
 
 ## Learning Lessons
 

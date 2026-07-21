@@ -8,7 +8,7 @@ uma User Story e a um Success Criteria da spec.
 
 ## Pré-requisitos
 
-- Python 3.12 + ambiente do repositório (`uv sync`); dependência nova: `apscheduler` (adicionada no MR).
+- Python 3.12 + ambiente do repositório (`uv sync`); `apscheduler` já está no `pyproject.toml`.
 - Esquema criado e limiares semeados: `python -m db.init_db` (contrato spec 002).
 - Pipeline disponível: `python -m pipeline.run_etl` funcional (spec 003, entregue).
 
@@ -17,6 +17,37 @@ uma User Story e a um Success Criteria da spec.
 uv sync
 python -m db.init_db            # cria esquema + seed de limiar_config (idempotente)
 ```
+
+---
+
+## Caminho rápido — subir o app completo em 1 processo (scheduler)
+
+O `scheduler.py` costura **ETL → Motor** num ciclo único e ordenado (arquitetura §8) e roda o
+**primeiro ciclo imediatamente** (não espera 1 intervalo). É o "app completo" da PoC hoje — os
+painéis (specs 005/006) ainda não entram. Verificado nas duas pontas (CLI + scheduler).
+
+```bash
+uv sync
+python -m db.init_db                              # esquema + limiares (idempotente)
+CICLO_INTERVALO_SEGUNDOS=5 python scheduler.py    # sobe o ciclo; Ctrl-C / SIGTERM encerra limpo
+```
+
+Em **outro terminal**, faça o gesto da demo e veja o alerta surgir sozinho no próximo tick:
+
+```bash
+cp data/seeds/gatilho_demo_abastecimento.csv data/inbox/   # eleva o km_atual de RLL8062
+sleep 6                                                     # ~1 ciclo
+python -c "from sqlalchemy import text; from db.config import get_engine; \
+print(get_engine().connect().execute(text(\"SELECT placa,tipo_gatilho,situacao,detalhe FROM alerta WHERE situacao='ativo' ORDER BY id\")).all())"
+```
+
+**Esperado** — nos logs do scheduler, `ciclo completo: etl=… motor={… criados_km/criados_tempo …}`;
+o alerta de `TND8453` (tempo) já no 1º ciclo e o de `RLL8062` (km) no ciclo após o depósito do CSV,
+sem nenhuma ação manual entre ticks. Uma fonte fora do ar aparece como `indisponivel` e **não**
+interrompe o motor (US5.3).
+
+> Prefere passo a passo (cada camada isolada)? Os Cenários 1–6 abaixo cobrem cada User Story/SC
+> individualmente, chamando `python -m pipeline.run_etl` e `python -m alertas.motor` à mão.
 
 ---
 
@@ -131,8 +162,10 @@ fonte do ETL fora do ar, o motor ainda roda sobre o estado consolidado disponív
 
 ## Suíte automatizada (critério de aceite do kanban — SC-006/FR-008)
 
-`tests/test_alertas.py` cobre, no mínimo: disparo por **km**, disparo por **tempo**,
-**idempotência** (10× → 0 duplicatas) e **dados_insuficientes**. Padrão de fixture herdado de
+`tests/test_alertas.py` cobre: as **regras puras** (`alertas/regras.py`), o **contrato do retorno**,
+disparo por **km** (+ edição de limiar ao vivo), disparo por **tempo**, **idempotência** (10× → 0
+duplicatas) + histórico/recorrência, **dados_insuficientes** (4 casos) e o **ciclo agendado** (US5:
+`scheduler.executar_ciclo_e_verificar`, intervalo por env var, fonte fora do ar). Fixture herdada de
 `tests/test_pipeline.py` (SQLite em `tmp_path` + `db.init_db.main()`); `hoje` é injetado para
 determinismo (research R3); os veículos/limiares de referência são lidos dos seeds, sem valores
 mágicos no teste.
@@ -147,18 +180,28 @@ uv run pytest tests/test_alertas.py -q
 
 ## Validação nos dois dialetos (learning lesson "dois bancos-alvo") — obrigatória antes do commit
 
-A suíte roda em SQLite; a demo roda em PostgreSQL 16. O no-op de conflito (SAVEPOINT +
-`IntegrityError`) e a contagem de criados (delta, não `rowcount`) devem se comportar **igual** nos
-dois. Repetir os Cenários 1–3 contra um Postgres descartável:
+A suíte roda em SQLite; a demo roda em PostgreSQL 16. `tests/test_alertas.py` não cobre Postgres
+diretamente (as fixtures fixam `DATABASE_URL` para SQLite em `tmp_path`, por isolamento/velocidade)
+— por isso os Cenários 1–6 são repetidos **manualmente via CLI real** contra um Postgres descartável,
+o mesmo caminho que a demo usa. O no-op de conflito (INSERT em lote com `ON CONFLICT DO NOTHING`
+sobre `ux_alerta_ativo`, **ADR-006**) e a contagem de criados (delta de `COUNT`, nunca `rowcount`)
+devem se comportar **igual** nos dois dialetos:
 
 ```bash
 docker run --rm -d --name frota-pg -e POSTGRES_PASSWORD=frota -e POSTGRES_DB=frota -p 5432:5432 postgres:16
 export DATABASE_URL="postgresql+psycopg://postgres:frota@localhost:5432/frota"
 python -m db.init_db
-python -m pipeline.run_etl && python -m alertas.motor            # Cenários 1–2
+python -m pipeline.run_etl && python -m alertas.motor             # Cenários 1–2
 for i in $(seq 1 10); do python -m alertas.motor >/dev/null; done # Cenário 3: 0 duplicatas
+CICLO_INTERVALO_SEGUNDOS=5 python scheduler.py                    # Cenário 6 (Ctrl-C/SIGTERM encerra)
 docker rm -f frota-pg
 ```
 
-**Esperado**: mesmos resultados que em SQLite — em especial, contagem de alertas ativos estável nas
-10 verificações (idempotência real no dialeto da demo).
+**Validado (2026-07-21)**: os 6 cenários rodaram nos dois dialetos com resultados **idênticos**
+(mesmos `criados_km`/`criados_tempo`/`criados_dados_insuficientes`/`ja_ativos` em cada passo):
+`criados_tempo=1` isolado no 1º ciclo (Cenário 1); `criados_km=1` após o gatilho, sem intervenção
+manual (Cenário 2); **2 → 2** alertas ativos em 10 rodadas extras — a prova de que o delta de
+`COUNT` não sofre do `rowcount=-1` do psycopg em multi-VALUES `ON CONFLICT` (Cenário 3, o mais
+crítico do dialeto); 1 `dados_insuficientes` por veículo com `limiar_id IS NULL` (Cenário 4);
+`criados_km=11` refletindo a edição ao vivo do limiar, sem reiniciar nada (Cenário 5); `scheduler.py`
+com 1ª execução imediata, 2º tick idempotente e shutdown limpo em SIGTERM (Cenário 6).

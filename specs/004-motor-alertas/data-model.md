@@ -65,8 +65,9 @@ não-avaliável para aquele par. Nunca há default silencioso.
   coalesce(limiar_id,-1)) WHERE situacao='ativo'`: no máximo **um** alerta ativo por
   `(placa, tipo_gatilho, limiar)`. `dados_insuficientes` tem `limiar_id` NULL → sentinela `-1`
   → **um** ativo por placa (R6).
-- **Idempotência (FR-003/SC-002)** — o motor tenta inserir e trata `IntegrityError` do índice como
-  **no-op** (SAVEPOINT + rollback do savepoint), contando `ja_ativos` (R4).
+- **Idempotência (FR-003/SC-002)** — o motor insere em **lote por `tipo_gatilho`** com
+  `ON CONFLICT DO NOTHING`, deixando o índice tratar a colisão como **no-op**; contagens vêm do
+  delta de `COUNT` (nunca `rowcount`) e `ja_ativos = candidatos − criados` (R4, **ADR-006**).
 - **Histórico permanente (FR-004)** — motor **nunca** faz DELETE nem UPDATE de `alerta`; só INSERT.
   Recorrência após `resolvido` cria nova linha `ativo` (o índice parcial só vê ativos).
 - **Rastreabilidade (constitution II)** — km/tempo sempre com `limiar_id` (liga ao parâmetro);
@@ -121,11 +122,19 @@ km_confiavel(km_atual, km_no_momento):
            and km_no_momento is not None
            and km_atual >= km_no_momento     # odômetro não anda para trás (ADR-002)
 
-criar_alerta(...):                            # R4
-    tenta INSERT em SAVEPOINT
-    IntegrityError (ux_alerta_ativo)  -> rollback savepoint; conta ja_ativos (no-op idempotente)
-    sucesso                            -> conta criados_<tipo_gatilho>
+inserir_alertas(candidatos):                  # R4 — INSERT em lote (ADR-006)
+    para cada grupo por tipo_gatilho:
+        antes  = COUNT(*) em alerta
+        INSERT do grupo ... ON CONFLICT DO NOTHING   # ux_alerta_ativo faz o no-op
+        depois = COUNT(*) em alerta
+        criados_<tipo_gatilho> = depois - antes      # inserts efetivos, nunca rowcount
+    ja_ativos = len(candidatos) - soma(criados_*)     # o que colidiu era ativo preexistente
 ```
+
+> **Nota de mecanismo (ADR-006)**: o pseudocódigo acima descreve o INSERT em lote **efetivamente
+> implementado**. Uma alternativa equivalente — SAVEPOINT por linha (`begin_nested` + rollback em
+> `IntegrityError`) — fica documentada no ADR-006 como plano de saída se algum dia dois candidatos
+> puderem colidir dentro do **mesmo** ciclo (hoje isso não ocorre; ver o invariante no ADR).
 
 **Observações de correção**
 - Um veículo pode gerar simultaneamente `km`, `tempo` (tipos/pares distintos) e um único

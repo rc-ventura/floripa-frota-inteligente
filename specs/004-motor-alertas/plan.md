@@ -92,7 +92,7 @@ alertas/
 ├── __init__.py
 ├── motor.py             # verificar_alertas(hoje=None) -> dict + CLI (python -m alertas.motor)
 ├── regras.py            # (opcional) regras puras: dispara_km(), dispara_tempo(), km_confiavel()
-└── config.py            # intervalo_ciclo_segundos() lendo env var (constitution V)
+└── alert_config.py      # intervalo_ciclo_segundos() lendo env var (constitution V)
 
 scheduler.py             # raiz — APScheduler: 1 job ordenado (executar_ciclo() → verificar_alertas())
 

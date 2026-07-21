@@ -210,7 +210,7 @@ otimização adicional.
 ## R9 — Intervalo do ciclo como env var (FR-006, SC-005, constitution V)
 
 **Decisão**: variável `CICLO_INTERVALO_SEGUNDOS` (inteiro em segundos), lida por
-`alertas/config.py::intervalo_ciclo_segundos()`, **default 90** (1,5 min — dentro da faixa de demo
+`alertas/alert_config.py::intervalo_ciclo_segundos()`, **default 90** (1,5 min — dentro da faixa de demo
 1–2 min da arquitetura §8). Documentar em `.env.example`. Segundos (não minutos) dá granularidade
 para testes/ajuste fino sem tocar em código.
 

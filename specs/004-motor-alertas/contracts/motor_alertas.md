@@ -65,7 +65,7 @@ python scheduler.py              # sobe o APScheduler; roda até Ctrl-C / SIGTER
 
 | Variável | Default | Uso |
 |---|---|---|
-| `CICLO_INTERVALO_SEGUNDOS` | `90` | intervalo do agendador (demo 1–2 min); lido por `alertas.config.intervalo_ciclo_segundos()` |
+| `CICLO_INTERVALO_SEGUNDOS` | `90` | intervalo do agendador (demo 1–2 min); lido por `alertas.alert_config.intervalo_ciclo_segundos()` |
 | `DATABASE_URL` | `sqlite:///db/frota.db` | herdada do contrato 002 (via `db.config`) |
 
 > As env vars das fontes do ETL (`PIPELINE_*`, `MULTAS_API_URL`) são do contrato da spec 003 e
